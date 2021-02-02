@@ -20,7 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor(staticName = "of")
 public class BiblioModel {
     private static long lastId = 0;
-    MutableLongObjectMap<Auteur> auteurs = LongObjectMaps.mutable.empty();
+    final MutableLongObjectMap<Auteur> auteurs = LongObjectMaps.mutable.empty();
 
     public Auteur addAuteur(Auteur auteur) throws IllegalArgumentException {
         if (auteur.id != 0) throw new IllegalArgumentException();

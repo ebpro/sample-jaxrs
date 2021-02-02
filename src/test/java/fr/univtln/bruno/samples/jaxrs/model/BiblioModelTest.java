@@ -79,7 +79,7 @@ public class BiblioModelTest {
 
     @Test
     public void of() {
-        BiblioModel modeleBibliotheque1 = modeleBibliotheque.of();
+        BiblioModel modeleBibliotheque1 = BiblioModel.of();
         assertNotNull(modeleBibliotheque1);
     }
 
