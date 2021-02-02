@@ -6,7 +6,6 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +29,7 @@ public class BiblioServer {
         Logger logger = Logger.getLogger(BiblioServer.class.getName());
 
         final ResourceConfig rc = new ResourceConfig()
-                .packages(true,"fr.univtln.bruno.samples.jaxrs")
+                .packages(true, "fr.univtln.bruno.samples.jaxrs")
                 .register(new LoggingFeature(logger, Level.INFO, null, null));
 
         // create and start a new instance of grizzly http server
@@ -42,9 +41,8 @@ public class BiblioServer {
      * Main method.
      *
      * @param args the input arguments
-     * @throws IOException the io exception
      */
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws InterruptedException {
         log.info("Rest server starting..." + BASE_URI);
         final HttpServer server = startServer();
 
