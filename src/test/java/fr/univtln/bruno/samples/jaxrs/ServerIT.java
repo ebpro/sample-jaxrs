@@ -6,6 +6,7 @@ import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -13,6 +14,7 @@ import org.glassfish.jersey.message.internal.MediaTypes;
 import org.junit.*;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
@@ -26,7 +28,6 @@ public class ServerIT {
 
     /**
      * Starts the application before the tests.
-     *
      */
     @BeforeClass
     public static void setUp() {
@@ -39,7 +40,6 @@ public class ServerIT {
 
     /**
      * Stops the application at the end of the test.
-     *
      */
     @AfterClass
     public static void tearDown() {
@@ -105,7 +105,8 @@ public class ServerIT {
     @Test
     public void testGetAuteurs() {
         @SuppressWarnings("unchecked")
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(Collection.class);
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        });
         assertEquals(2, responseAuteurs.size());
     }
 
@@ -116,9 +117,24 @@ public class ServerIT {
     public void deleteAuteurs() {
         webTarget.path("biblio/auteurs").request().delete();
         @SuppressWarnings("unchecked")
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(Collection.class);
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        });
         assertEquals(0, responseAuteurs.size());
     }
+
+    /**
+     * Tests to delete an author.
+     */
+    @Test
+    public void deleteAuteur() {
+        webTarget.path("biblio/auteurs/1").request().delete();
+        @SuppressWarnings("unchecked")
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        });
+        assertEquals(1, responseAuteurs.size());
+        assertEquals(2, responseAuteurs.iterator().next().getId());
+    }
+
 
     /**
      * Tests to add an author in JSON.
@@ -130,7 +146,8 @@ public class ServerIT {
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{\"nom\":\"Smith\",\"prenom\":\"John\",\"biographie\":\"My life\"}", MediaType.APPLICATION_JSON));
         @SuppressWarnings("unchecked")
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(Collection.class);
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        });
         assertEquals(3, responseAuteurs.size());
         Auteur responseAuteur = webTarget.path("biblio/auteurs/3").request(MediaType.APPLICATION_JSON).get(Auteur.class);
         assertNotNull(responseAuteur);
