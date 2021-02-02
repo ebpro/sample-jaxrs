@@ -16,7 +16,6 @@ import java.io.Serializable;
 
 @Log
 @Getter
-@Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(staticName = "of")
 public class BiblioModel {

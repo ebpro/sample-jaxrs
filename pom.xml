@@ -144,6 +144,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M4</version>
                 <configuration>
+                    <!--suppress UnresolvedMavenProperty -->
                     <argLine>${surefire.jacoco.args}</argLine>
                 </configuration>
             </plugin>
@@ -153,6 +154,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M4</version>
                 <configuration>
+                    <!--suppress MavenModelInspection -->
                     <argLine>${failsafe.jacoco.args}</argLine>
                 </configuration>
                 <executions>

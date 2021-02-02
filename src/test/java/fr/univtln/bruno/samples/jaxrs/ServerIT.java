@@ -14,7 +14,6 @@ import org.glassfish.jersey.message.internal.MediaTypes;
 import org.junit.*;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import static org.junit.Assert.*;
 
@@ -104,7 +103,6 @@ public class ServerIT {
      */
     @Test
     public void testGetAuteurs() {
-        @SuppressWarnings("unchecked")
         Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
         });
         assertEquals(2, responseAuteurs.size());
@@ -116,7 +114,6 @@ public class ServerIT {
     @Test
     public void deleteAuteurs() {
         webTarget.path("biblio/auteurs").request().delete();
-        @SuppressWarnings("unchecked")
         Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
         });
         assertEquals(0, responseAuteurs.size());
@@ -128,7 +125,6 @@ public class ServerIT {
     @Test
     public void deleteAuteur() {
         webTarget.path("biblio/auteurs/1").request().delete();
-        @SuppressWarnings("unchecked")
         Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
         });
         assertEquals(1, responseAuteurs.size());
@@ -145,7 +141,6 @@ public class ServerIT {
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{\"nom\":\"Smith\",\"prenom\":\"John\",\"biographie\":\"My life\"}", MediaType.APPLICATION_JSON));
-        @SuppressWarnings("unchecked")
         Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
         });
         assertEquals(3, responseAuteurs.size());
