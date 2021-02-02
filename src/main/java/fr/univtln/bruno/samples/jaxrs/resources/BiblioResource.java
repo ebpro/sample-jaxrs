@@ -27,6 +27,7 @@ public class BiblioResource {
     @PUT
     @Path("init")
     public int init() throws IllegalArgumentException {
+        modeleBibliotheque.supprimerAuteurs();
         modeleBibliotheque.addAuteur(Auteur.builder().prenom("Jean").nom("Martin").build());
         modeleBibliotheque.addAuteur(Auteur.builder().prenom("Marie").nom("Durand").build());
         return modeleBibliotheque.getAuteurSize();
