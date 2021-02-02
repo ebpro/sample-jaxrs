@@ -105,9 +105,6 @@
             <version>3.11</version>
             <scope>test</scope>
         </dependency>
-
-
-
     </dependencies>
     <build>
         <plugins>
@@ -134,7 +131,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>fr.univtln.bruno.samples.jaxrs.server.BiblioServer</mainClass>
+                    <mainClass>${main.class}</mainClass>
                 </configuration>
             </plugin>
 
@@ -329,5 +326,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco-merged-coverage-report/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <main.class>fr.univtln.bruno.samples.jaxrs.server.BiblioServer</main.class>
     </properties>
 </project>

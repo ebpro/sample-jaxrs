@@ -5,6 +5,7 @@ import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
+import fr.univtln.bruno.samples.jaxrs.status.Status;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
@@ -38,7 +39,15 @@ public class BiblioResource {
         return modeleBibliotheque.updateAuteur(id, auteur);
     }
 
+    /**
+     * Status annotation is a trick to fine tune 2XX status codes (see the status package).
+     *
+     * @param auteur
+     * @return
+     * @throws IllegalArgumentException
+     */
     @POST
+    @Status(Status.CREATED)
     @Path("auteurs")
     @Consumes(MediaType.APPLICATION_JSON)
     public Auteur ajouterAuteur(Auteur auteur) throws IllegalArgumentException {
