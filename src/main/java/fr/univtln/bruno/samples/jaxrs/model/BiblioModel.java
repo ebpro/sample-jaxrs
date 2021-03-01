@@ -7,6 +7,7 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.*;
+import lombok.experimental.Delegate;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.java.Log;
 import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
@@ -20,6 +21,8 @@ import java.io.Serializable;
 @NoArgsConstructor(staticName = "of")
 public class BiblioModel {
     private static long lastId = 0;
+
+    @Delegate
     final MutableLongObjectMap<Auteur> auteurs = LongObjectMaps.mutable.empty();
 
     public Auteur addAuteur(Auteur auteur) throws IllegalArgumentException {

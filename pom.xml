@@ -114,8 +114,8 @@
                 <version>3.8.1</version>
                 <inherited>true</inherited>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>15</source>
+                    <target>15</target>
                 </configuration>
             </plugin>
 
@@ -269,7 +269,7 @@
                                     <version>3.5.4</version>
                                 </requireMavenVersion>
                                 <requireJavaVersion>
-                                    <version>11</version>
+                                    <version>15</version>
                                 </requireJavaVersion>
                             </rules>
                         </configuration>
@@ -319,6 +319,71 @@
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.9.1</version>
             </plugin>
+
+            <!-- Builds a jar that can merge the artifact and its dependencies
+                https://maven.apache.org/plugins/maven-shade-plugin/
+                WARNING minimizeJar can cause trouble, disable it in the child project if needed
+
+                The manifest mainclass can be given with the property ${app.main.class}.
+
+                Its is added to the package phase.
+                -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.3</version>
+                <configuration>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
+                    <minimizeJar>false</minimizeJar>
+                    <!-- The shaded artifact is not the main artifact -->
+                    <shadedArtifactAttached>true</shadedArtifactAttached>
+                    <shadedClassifierName>withdependencies</shadedClassifierName>
+
+                    <transformers>
+                        <!-- merge services ressource for SPI -->
+                        <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+
+                        <!-- makes a default entry point in the shaded jar -->
+                        <transformer
+                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <manifestEntries>
+                                <Main-Class>${main.class}</Main-Class>
+                                <X-Compile-Source-JDK>${java.version}</X-Compile-Source-JDK>
+                                <X-Compile-Target-JDK>${java.version}</X-Compile-Target-JDK>
+                            </manifestEntries>
+                        </transformer>
+
+                        <!-- keep a default config file -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                            <resource>config.properties</resource>
+                            <resource>log4j.properties</resource>
+                        </transformer>
+                    </transformers>
+
+                    <!-- removes signatures in uberjar -->
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
     <properties>

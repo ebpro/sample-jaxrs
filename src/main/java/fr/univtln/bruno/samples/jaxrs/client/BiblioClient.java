@@ -1,7 +1,6 @@
 package fr.univtln.bruno.samples.jaxrs.client;
 
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
-import fr.univtln.bruno.samples.jaxrs.server.BiblioServer;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;

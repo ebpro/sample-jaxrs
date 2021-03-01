@@ -14,6 +14,7 @@ import org.glassfish.jersey.message.internal.MediaTypes;
 import org.junit.*;
 
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -74,7 +75,7 @@ public class ServerIT {
     public void testGetAuteurJSON() {
         Auteur responseAuteur = webTarget.path("biblio/auteurs/1").request(MediaType.APPLICATION_JSON).get(Auteur.class);
         assertNotNull(responseAuteur);
-        assertEquals("Jean", responseAuteur.getPrenom());
+        assertEquals("Alfred", responseAuteur.getPrenom());
         assertEquals("Martin", responseAuteur.getNom());
     }
 
@@ -85,7 +86,7 @@ public class ServerIT {
     public void testGetAuteurXML() {
         Auteur responseAuteur = webTarget.path("biblio/auteurs/1").request(MediaType.TEXT_XML).get(Auteur.class);
         assertNotNull(responseAuteur);
-        assertEquals("Jean", responseAuteur.getPrenom());
+        assertEquals("Alfred", responseAuteur.getPrenom());
         assertEquals("Martin", responseAuteur.getNom());
     }
 
@@ -189,5 +190,19 @@ public class ServerIT {
                 .request(MediaTypes.WADL_TYPE)
                 .get(String.class);
         assertTrue(serviceWadl.length() > 0);
+    }
+
+    /**
+     * Tests filters and query param.
+     */
+    @Test
+    public void filter() {
+        List<Auteur> auteurs = webTarget.path("biblio/auteurs/filter")
+                .queryParam("prenom","Marie")
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<>() {});
+
+        assertEquals(1, auteurs.size());
+        assertEquals("Marie", auteurs.get(0).getPrenom());
     }
 }

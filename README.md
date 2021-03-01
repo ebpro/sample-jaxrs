@@ -72,3 +72,13 @@ curl -s -D - -H "Accept: application/json"  \
   http://localhost:9998/myapp/biblio/auteurs/1000
 ```
 
+Filter resources with query parameters :
+```shell
+curl -v -H "Accept: application/json"  \
+ "http://127.0.0.1:9998/myapp/biblio/auteurs/filter?nom=Durand&prenom⁼Marie"
+```
+Control sort key with header param (default value "nom") :
+```shell
+curl -v -H "Accept: application/json"  -H "sortKey: prenom"\
+"http://127.0.0.1:9998/myapp/biblio/auteurs/filter"
+```

@@ -1,7 +1,6 @@
 package fr.univtln.bruno.samples.jaxrs.status;
 
 import jakarta.ws.rs.NameBinding;
-import jakarta.ws.rs.core.Response;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

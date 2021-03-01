@@ -8,9 +8,15 @@ import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
 import fr.univtln.bruno.samples.jaxrs.status.Status;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import lombok.extern.java.Log;
 
+import java.security.InvalidParameterException;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Log
 // The Java class will be hosted at the URI path "/biblio"
 @Path("biblio")
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
@@ -28,7 +34,7 @@ public class BiblioResource {
     @Path("init")
     public int init() throws IllegalArgumentException {
         modeleBibliotheque.supprimerAuteurs();
-        modeleBibliotheque.addAuteur(Auteur.builder().prenom("Jean").nom("Martin").build());
+        modeleBibliotheque.addAuteur(Auteur.builder().prenom("Alfred").nom("Martin").build());
         modeleBibliotheque.addAuteur(Auteur.builder().prenom("Marie").nom("Durand").build());
         return modeleBibliotheque.getAuteurSize();
     }
@@ -78,4 +84,26 @@ public class BiblioResource {
     public Collection<Auteur> getAuteurs() {
         return modeleBibliotheque.getAuteurs().values();
     }
+
+    @GET
+    @Path("auteurs/filter")
+    public List<Auteur> getFilteredAuteurs(@QueryParam("nom") String nom, @QueryParam("prenom") String prenom, @QueryParam("biograpĥie") String biographie,
+                                           @HeaderParam("sortKey") @DefaultValue("nom") String sortKey) {
+        log.info("Sort Key: "+sortKey);
+        //Demo purpose ONLY sorting have to be done in the model
+        return modeleBibliotheque
+                .stream()
+                .filter(auteur -> nom == null || auteur.getNom().equalsIgnoreCase(nom))
+                .filter(auteur -> prenom == null || auteur.getPrenom().equalsIgnoreCase(prenom))
+                .filter(auteur -> biographie == null || auteur.getBiographie().contains(biographie))
+                //We use the news Java 15 switch syntax and value
+                .sorted(Comparator.comparing(auteur -> switch (sortKey) {
+                    case "nom" -> auteur.getNom();
+                    case "prenom" -> auteur.getPrenom();
+                    default -> throw new InvalidParameterException();
+                }))
+                .collect(Collectors.toList());
+    }
+
+
 }
