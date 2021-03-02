@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.security.InvalidParameterException;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,14 +29,14 @@ import static fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Field.valueOf;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(staticName = "of")
 public class BiblioModel {
-    private static long lastId = 0;
+    private static AtomicLong lastId = new AtomicLong(0);
 
     @Delegate
     final MutableLongObjectMap<Auteur> auteurs = LongObjectMaps.mutable.empty();
 
     public Auteur addAuteur(Auteur auteur) throws IllegalArgumentException {
         if (auteur.id != 0) throw new IllegalArgumentException();
-        auteur.id = ++lastId;
+        auteur.id = lastId.incrementAndGet();
         auteurs.put(auteur.id, auteur);
         return auteur;
     }
