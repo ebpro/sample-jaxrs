@@ -64,7 +64,12 @@ public class BiblioModel {
     }
 
     public List<Auteur> getWithFilter(PaginationInfo paginationInfo) {
-        Stream<Auteur> auteurStream = auteurs.stream();
+        Stream<Auteur> auteurStream = auteurs.stream()
+                .sorted(Comparator.comparing(auteur -> switch (valueOf(paginationInfo.getSortKey().toUpperCase())) {
+                    case NOM -> auteur.getNom();
+                    case PRENOM -> auteur.getPrenom();
+                    default -> throw new InvalidParameterException();
+                }));
         if (paginationInfo.getNom() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getNom().equalsIgnoreCase(paginationInfo.getNom()));
         if (paginationInfo.getPrenom() != null)
@@ -77,11 +82,7 @@ public class BiblioModel {
                     .limit(paginationInfo.getPageSize());
         }
 
-        return auteurStream.sorted(Comparator.comparing(auteur -> switch (valueOf(paginationInfo.getSortKey().toUpperCase())) {
-            case NOM -> auteur.getNom();
-            case PRENOM -> auteur.getPrenom();
-            default -> throw new InvalidParameterException();
-        })).collect(Collectors.toList());
+        return auteurStream.collect(Collectors.toList());
     }
 
     public void supprimerAuteurs() {
