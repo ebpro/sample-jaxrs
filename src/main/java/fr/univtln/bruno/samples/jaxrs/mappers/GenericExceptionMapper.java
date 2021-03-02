@@ -11,10 +11,8 @@ import lombok.experimental.FieldDefaults;
 @Provider
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GenericExceptionMapper implements ExceptionMapper<Exception> {
-    final Response.Status status = Response.Status.INTERNAL_SERVER_ERROR;
-
     public Response toResponse(Exception ex) {
-        return Response.status(status)
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .entity(ex.getMessage())
                 .type(MediaType.APPLICATION_JSON)
                 .build();

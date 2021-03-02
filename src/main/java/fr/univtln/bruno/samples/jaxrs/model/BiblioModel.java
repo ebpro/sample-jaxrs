@@ -86,7 +86,7 @@ public class BiblioModel {
 
     public void supprimerAuteurs() {
         auteurs.clear();
-        lastId = 0;
+        lastId.set(0);
     }
 
     public enum Field {NOM, PRENOM, BIOGRAPHIE}
