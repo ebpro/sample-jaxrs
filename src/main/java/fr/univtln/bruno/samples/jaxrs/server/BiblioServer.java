@@ -19,25 +19,6 @@ public class BiblioServer {
     public static final String BASE_URI = "http://0.0.0.0:9998/myapp";
 
     /**
-     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
-     *
-     * @return Grizzly HTTP server.
-     */
-    public static HttpServer startServer() {
-        // create a resource config that scans for JAX-RS resources and providers
-        // in demos package and add a logging feature to the server.
-        Logger logger = Logger.getLogger(BiblioServer.class.getName());
-
-        final ResourceConfig rc = new ResourceConfig()
-                .packages(true, "fr.univtln.bruno.samples.jaxrs")
-                .register(new LoggingFeature(logger, Level.INFO, null, null));
-
-        // create and start a new instance of grizzly http server
-        // exposing the Jersey application at BASE_URI
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
-    }
-
-    /**
      * Main method.
      *
      * @param args the input arguments
@@ -50,10 +31,30 @@ public class BiblioServer {
         Runtime.getRuntime().addShutdownHook(new Thread(server::shutdownNow));
 
         log.info(String.format("Application started.%n" +
-                "Stop the application using CTRL+C"));
+                               "Stop the application using CTRL+C"));
 
         //We wait an infinite time.
         Thread.currentThread().join();
         server.shutdown();
+    }
+
+    /**
+     * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
+     *
+     * @return Grizzly HTTP server.
+     */
+    public static HttpServer startServer() {
+        // create a resource config that scans for JAX-RS resources and providers
+        // in demos package and add a logging feature to the server.
+        Logger logger = Logger.getLogger(BiblioServer.class.getName());
+        logger.setLevel(Level.FINE);
+
+        final ResourceConfig rc = new ResourceConfig()
+                .packages(true, "fr.univtln.bruno.samples.jaxrs")
+                .register(new LoggingFeature(logger, Level.INFO, LoggingFeature.Verbosity.PAYLOAD_TEXT, null));
+
+        // create and start a new instance of grizzly http server
+        // exposing the Jersey application at BASE_URI
+        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 }

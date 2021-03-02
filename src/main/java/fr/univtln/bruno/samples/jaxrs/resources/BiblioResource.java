@@ -5,13 +5,26 @@ import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
+import fr.univtln.bruno.samples.jaxrs.security.BasicAuth;
+import fr.univtln.bruno.samples.jaxrs.security.JWTAuth;
+import fr.univtln.bruno.samples.jaxrs.security.User;
+import fr.univtln.bruno.samples.jaxrs.security.UserDatabase;
 import fr.univtln.bruno.samples.jaxrs.status.Status;
+import io.jsonwebtoken.Jwts;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.*;
 import lombok.extern.java.Log;
 
+import javax.naming.AuthenticationException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.sql.Date;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Collection;
+import java.util.List;
 
 @Log
 // The Java class will be hosted at the URI path "/biblio"
@@ -127,5 +140,62 @@ public class BiblioResource {
     @Path("auteurs/page")
     public List<Auteur> getAuteursPage(@BeanParam PaginationInfo paginationInfo) {
         return modeleBibliotheque.getWithFilter(paginationInfo);
+    }
+
+    @GET
+    @Path("context")
+    @RolesAllowed("ADMIN")
+    public String getContext(@Context UriInfo uriInfo, @Context HttpHeaders httpHeaders, @Context Request request, @Context SecurityContext securityContext) throws ParseException {
+        return "UriInfo: (" + uriInfo.getRequestUri().toString()
+               + ")\n HttpHeaders(" + httpHeaders.getRequestHeaders().toString()
+               //+")\n Request Precondition("+request.evaluatePreconditions(new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss").parse("03/02/2021-10:30:00"))
+               + ")\n SecurityContext(Auth.scheme: [" + securityContext.getAuthenticationScheme()
+               + "] user: [" + securityContext.getUserPrincipal().getName()
+               + "] secured: [" + securityContext.isSecure() + "] )";
+    }
+
+    @GET
+    @Path("adminsonly")
+    @RolesAllowed("ADMIN")
+    @BasicAuth
+    public String getRestrictedToAdmins() {
+        return "secret for admins !";
+    }
+
+    @GET
+    @Path("usersonly")
+    @RolesAllowed("USER")
+    @BasicAuth
+    public String getRestrictedToUsers() {
+        return "secret for users !";
+    }
+
+    @GET
+    @Path("secured")
+    @RolesAllowed({"USER", "ADMIN"})
+    @JWTAuth
+    public String securedByJWT(@Context SecurityContext securityContext) {
+        log.info("USER ACCESS :"+securityContext.getUserPrincipal().getName());
+        return "Access with JWT ok for "+securityContext.getUserPrincipal().getName();
+    }
+
+    @GET
+    @Path("login")
+    @RolesAllowed({"USER", "ADMIN"})
+    @BasicAuth
+    public String login(@Context SecurityContext securityContext) {
+        if (securityContext.isSecure() && securityContext.getUserPrincipal() instanceof User) {
+            User user = (User) securityContext.getUserPrincipal();
+            return Jwts.builder()
+                    .setIssuer("sample-jaxrs")
+                    .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                    .setSubject(user.getEmail())
+                    .claim("firstname", user.getFirstName())
+                    .claim("lastname", user.getLastName())
+                    .claim("roles", user.getRoles())
+                    .setExpiration(Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES).atZone(ZoneId.systemDefault()).toInstant()))
+                    .signWith(UserDatabase.KEY).compact();
+        }
+        throw new WebApplicationException(new AuthenticationException());
     }
 }
