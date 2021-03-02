@@ -13,7 +13,7 @@ import java.lang.annotation.Annotation;
 public class StatusFilter implements ContainerResponseFilter {
 
     @Override
-    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
+    public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) {
         if (containerResponseContext.getStatus() == Response.Status.OK.getStatusCode()) {
             for (Annotation annotation : containerResponseContext.getEntityAnnotations()) {
                 if (annotation instanceof Status) {

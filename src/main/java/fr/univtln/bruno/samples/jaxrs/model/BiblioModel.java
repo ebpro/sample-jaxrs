@@ -2,6 +2,7 @@ package fr.univtln.bruno.samples.jaxrs.model;
 
 import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
+import fr.univtln.bruno.samples.jaxrs.resources.PaginationInfo;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
@@ -14,6 +15,13 @@ import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
 import org.eclipse.collections.impl.factory.primitive.LongObjectMaps;
 
 import java.io.Serializable;
+import java.security.InvalidParameterException;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Field.valueOf;
 
 @Log
 @Getter
@@ -54,10 +62,33 @@ public class BiblioModel {
         return auteurs.size();
     }
 
+    public List<Auteur> getWithFilter(PaginationInfo paginationInfo) {
+        Stream<Auteur> auteurStream = auteurs.stream();
+        if (paginationInfo.getNom() != null)
+            auteurStream = auteurStream.filter(auteur -> auteur.getNom().equalsIgnoreCase(paginationInfo.getNom()));
+        if (paginationInfo.getPrenom() != null)
+            auteurStream = auteurStream.filter(auteur -> auteur.getPrenom().equalsIgnoreCase(paginationInfo.getPrenom()));
+        if (paginationInfo.getBiographie() != null)
+            auteurStream = auteurStream.filter(auteur -> auteur.getBiographie().contains(paginationInfo.getBiographie()));
+        if ((paginationInfo.getPage() > 0) && (paginationInfo.getPageSize() > 0)) {
+            auteurStream = auteurStream
+                    .skip(paginationInfo.getPageSize() * (paginationInfo.getPage() - 1))
+                    .limit(paginationInfo.getPageSize());
+        }
+
+        return auteurStream.sorted(Comparator.comparing(auteur -> switch (valueOf(paginationInfo.getSortKey().toUpperCase())) {
+            case NOM -> auteur.getNom();
+            case PRENOM -> auteur.getPrenom();
+            default -> throw new InvalidParameterException();
+        })).collect(Collectors.toList());
+    }
+
     public void supprimerAuteurs() {
         auteurs.clear();
         lastId = 0;
     }
+
+    public enum Field {NOM, PRENOM, BIOGRAPHIE}
 
     @Builder
     @Getter

@@ -10,11 +10,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.extern.java.Log;
 
-import java.security.InvalidParameterException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.security.SecureRandom;
+import java.util.*;
 
 @Log
 // The Java class will be hosted at the URI path "/biblio"
@@ -22,6 +19,8 @@ import java.util.stream.Collectors;
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 public class BiblioResource {
     private static final BiblioModel modeleBibliotheque = BiblioModel.of();
+
+    private static final SecureRandom random = new SecureRandom();
 
     @SuppressWarnings("SameReturnValue")
     @GET
@@ -40,6 +39,29 @@ public class BiblioResource {
     }
 
     @PUT
+    @Path("init/{size:[0-9]+}")
+    public int init(@PathParam("size") int size) throws IllegalArgumentException {
+        modeleBibliotheque.supprimerAuteurs();
+        for (int i = 0; i < size; i++)
+            modeleBibliotheque.addAuteur(
+                    Auteur.builder()
+                            .prenom(randomString(random.nextInt(6) + 2))
+                            .nom(randomString(random.nextInt(6) + 2)).build());
+        return modeleBibliotheque.getAuteurSize();
+    }
+
+    private String randomString(int targetStringLength) {
+        int letterA = 97;
+        int letterZ = 122;
+
+
+        return random.ints(letterA, letterZ + 1)
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+    }
+
+    @PUT
     @Path("auteurs/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Auteur updateAuteur(@PathParam("id") long id, Auteur auteur) throws NotFoundException, IllegalArgumentException {
@@ -49,8 +71,8 @@ public class BiblioResource {
     /**
      * Status annotation is a trick to fine tune 2XX status codes (see the status package).
      *
-     * @param auteur
-     * @return
+     * @param auteur The author to be added without its id.
+     * @return The added author with its id.
      * @throws IllegalArgumentException
      */
     @POST
@@ -87,23 +109,23 @@ public class BiblioResource {
 
     @GET
     @Path("auteurs/filter")
-    public List<Auteur> getFilteredAuteurs(@QueryParam("nom") String nom, @QueryParam("prenom") String prenom, @QueryParam("biograpĥie") String biographie,
+    public List<Auteur> getFilteredAuteurs(@QueryParam("nom") String nom,
+                                           @QueryParam("prenom") String prenom,
+                                           @QueryParam("biographie") String biographie,
                                            @HeaderParam("sortKey") @DefaultValue("nom") String sortKey) {
-        log.info("Sort Key: "+sortKey);
-        //Demo purpose ONLY sorting have to be done in the model
-        return modeleBibliotheque
-                .stream()
-                .filter(auteur -> nom == null || auteur.getNom().equalsIgnoreCase(nom))
-                .filter(auteur -> prenom == null || auteur.getPrenom().equalsIgnoreCase(prenom))
-                .filter(auteur -> biographie == null || auteur.getBiographie().contains(biographie))
-                //We use the news Java 15 switch syntax and value
-                .sorted(Comparator.comparing(auteur -> switch (sortKey) {
-                    case "nom" -> auteur.getNom();
-                    case "prenom" -> auteur.getPrenom();
-                    default -> throw new InvalidParameterException();
-                }))
-                .collect(Collectors.toList());
+        PaginationInfo paginationInfo = PaginationInfo.builder()
+                .nom(nom)
+                .prenom(prenom)
+                .biographie(biographie)
+                .sortKey(sortKey)
+                .build();
+        log.info(paginationInfo.toString());
+        return modeleBibliotheque.getWithFilter(paginationInfo);
     }
 
-
+    @GET
+    @Path("auteurs/page")
+    public List<Auteur> getAuteursPage(@BeanParam PaginationInfo paginationInfo) {
+        return modeleBibliotheque.getWithFilter(paginationInfo);
+    }
 }

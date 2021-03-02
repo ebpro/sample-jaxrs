@@ -104,7 +104,7 @@ public class ServerIT {
      */
     @Test
     public void testGetAuteurs() {
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(2, responseAuteurs.size());
     }
@@ -115,7 +115,7 @@ public class ServerIT {
     @Test
     public void deleteAuteurs() {
         webTarget.path("biblio/auteurs").request().delete();
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(0, responseAuteurs.size());
     }
@@ -126,7 +126,7 @@ public class ServerIT {
     @Test
     public void deleteAuteur() {
         webTarget.path("biblio/auteurs/1").request().delete();
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(1, responseAuteurs.size());
         assertEquals(2, responseAuteurs.iterator().next().getId());
@@ -142,7 +142,7 @@ public class ServerIT {
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .post(Entity.entity("{\"nom\":\"Smith\",\"prenom\":\"John\",\"biographie\":\"My life\"}", MediaType.APPLICATION_JSON));
-        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<Collection<Auteur>>() {
+        Collection<Auteur> responseAuteurs = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(3, responseAuteurs.size());
         Auteur responseAuteur = webTarget.path("biblio/auteurs/3").request(MediaType.APPLICATION_JSON).get(Auteur.class);
