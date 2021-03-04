@@ -1,4 +1,4 @@
-package fr.univtln.bruno.samples.jaxrs.security;
+package fr.univtln.bruno.samples.jaxrs.security.annotations;
 
 import jakarta.ws.rs.NameBinding;
 
@@ -12,5 +12,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @NameBinding
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})
-public @interface BasicAuth {
+public @interface JWTAuth {
 }

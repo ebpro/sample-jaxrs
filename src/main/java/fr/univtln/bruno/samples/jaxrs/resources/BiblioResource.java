@@ -5,10 +5,10 @@ import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
-import fr.univtln.bruno.samples.jaxrs.security.BasicAuth;
-import fr.univtln.bruno.samples.jaxrs.security.JWTAuth;
+import fr.univtln.bruno.samples.jaxrs.security.annotations.BasicAuth;
+import fr.univtln.bruno.samples.jaxrs.security.annotations.JWTAuth;
 import fr.univtln.bruno.samples.jaxrs.security.User;
-import fr.univtln.bruno.samples.jaxrs.security.UserDatabase;
+import fr.univtln.bruno.samples.jaxrs.security.InMemoryLoginModule;
 import fr.univtln.bruno.samples.jaxrs.status.Status;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.security.RolesAllowed;
@@ -18,12 +18,11 @@ import lombok.extern.java.Log;
 
 import javax.naming.AuthenticationException;
 import java.security.SecureRandom;
-import java.sql.Date;
-import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 @Log
@@ -86,7 +85,7 @@ public class BiblioResource {
      *
      * @param auteur The author to be added without its id.
      * @return The added author with its id.
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the author has an explicit id (id!=0).
      */
     @POST
     @Status(Status.CREATED)
@@ -145,10 +144,9 @@ public class BiblioResource {
     @GET
     @Path("context")
     @RolesAllowed("ADMIN")
-    public String getContext(@Context UriInfo uriInfo, @Context HttpHeaders httpHeaders, @Context Request request, @Context SecurityContext securityContext) throws ParseException {
+    public String getContext(@Context UriInfo uriInfo, @Context HttpHeaders httpHeaders, @Context Request request, @Context SecurityContext securityContext) {
         return "UriInfo: (" + uriInfo.getRequestUri().toString()
                + ")\n HttpHeaders(" + httpHeaders.getRequestHeaders().toString()
-               //+")\n Request Precondition("+request.evaluatePreconditions(new SimpleDateFormat("dd/MM/yyyy-HH:mm:ss").parse("03/02/2021-10:30:00"))
                + ")\n SecurityContext(Auth.scheme: [" + securityContext.getAuthenticationScheme()
                + "] user: [" + securityContext.getUserPrincipal().getName()
                + "] secured: [" + securityContext.isSecure() + "] )";
@@ -158,31 +156,43 @@ public class BiblioResource {
     @Path("adminsonly")
     @RolesAllowed("ADMIN")
     @BasicAuth
-    public String getRestrictedToAdmins() {
-        return "secret for admins !";
+    public String getRestrictedToAdmins(@Context SecurityContext securityContext) {
+        return "secret for admins !" + securityContext.getUserPrincipal().getName();
     }
 
     @GET
     @Path("usersonly")
     @RolesAllowed("USER")
     @BasicAuth
-    public String getRestrictedToUsers() {
-        return "secret for users !";
+    public String getRestrictedToUsers(@Context SecurityContext securityContext) {
+        return "secret for users ! to " + securityContext.getUserPrincipal().getName();
     }
 
     @GET
     @Path("secured")
     @RolesAllowed({"USER", "ADMIN"})
     @JWTAuth
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
     public String securedByJWT(@Context SecurityContext securityContext) {
-        log.info("USER ACCESS :"+securityContext.getUserPrincipal().getName());
-        return "Access with JWT ok for "+securityContext.getUserPrincipal().getName();
+        log.info("USER ACCESS :" + securityContext.getUserPrincipal().getName());
+        return "Access with JWT ok for " + securityContext.getUserPrincipal().getName();
+    }
+
+    @GET
+    @Path("secured/admin")
+    @RolesAllowed({"ADMIN"})
+    @JWTAuth
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
+    public String securedByJWTAdminOnly(@Context SecurityContext securityContext) {
+        log.info("ADMIN ACCESS :" + securityContext.getUserPrincipal().getName());
+        return "Access with JWT ok for " + securityContext.getUserPrincipal().getName();
     }
 
     @GET
     @Path("login")
     @RolesAllowed({"USER", "ADMIN"})
     @BasicAuth
+    @Produces({MediaType.TEXT_PLAIN, MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
     public String login(@Context SecurityContext securityContext) {
         if (securityContext.isSecure() && securityContext.getUserPrincipal() instanceof User) {
             User user = (User) securityContext.getUserPrincipal();
@@ -194,7 +204,7 @@ public class BiblioResource {
                     .claim("lastname", user.getLastName())
                     .claim("roles", user.getRoles())
                     .setExpiration(Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES).atZone(ZoneId.systemDefault()).toInstant()))
-                    .signWith(UserDatabase.KEY).compact();
+                    .signWith(InMemoryLoginModule.KEY).compact();
         }
         throw new WebApplicationException(new AuthenticationException());
     }

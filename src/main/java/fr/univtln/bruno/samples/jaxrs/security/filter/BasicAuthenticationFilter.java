@@ -1,5 +1,8 @@
-package fr.univtln.bruno.samples.jaxrs.security;
+package fr.univtln.bruno.samples.jaxrs.security.filter;
 
+import fr.univtln.bruno.samples.jaxrs.security.MySecurityContext;
+import fr.univtln.bruno.samples.jaxrs.security.annotations.BasicAuth;
+import fr.univtln.bruno.samples.jaxrs.security.InMemoryLoginModule;
 import jakarta.annotation.Priority;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
@@ -10,24 +13,24 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import lombok.SneakyThrows;
 import lombok.extern.java.Log;
 
 import java.lang.reflect.Method;
-import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The type Authentication filter is a JAX-RS filter (@Provider with implements ContainerRequestFilter) is applied to every request whose method is annotated with @BasicAuth
+ * as it is itself annotated with @BasicAuth (a personal annotation).
+ * It performs authentication and check permissions against the acceded method with a basic authentication.
+ */
 @BasicAuth
 @Provider
 @Priority(Priorities.AUTHENTICATION)
 @Log
-/**
- * This class if a filter for JAX-RS to perform authentication and to check permissions against the acceded method.
- */
-public class AuthenticationFilter implements ContainerRequestFilter {
+public class BasicAuthenticationFilter implements ContainerRequestFilter {
     private static final String AUTHORIZATION_PROPERTY = "Authorization";
     private static final String AUTHENTICATION_SCHEME = "Basic";
 
@@ -40,8 +43,8 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) {
         //We use reflection on the acceded method to look for security annotations.
         Method method = resourceInfo.getResourceMethod();
-        //if its PermitAll access is granted
-        //otherwise if its DenyAll the access is refused
+        //if it is PermitAll access is granted
+        //otherwise if it is DenyAll the access is refused
         if (!method.isAnnotationPresent(PermitAll.class)) {
             if (method.isAnnotationPresent(DenyAll.class)) {
                 requestContext.abortWith(Response.status(Response.Status.FORBIDDEN)
@@ -59,64 +62,40 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 return;
             }
 
-            //Get encoded username and password
+            //We extract the username and password encoded in base64
             final String encodedUserPassword = authorization.substring(AUTHENTICATION_SCHEME.length()).trim();
 
-            //Decode username and password
-            String usernameAndPassword = new String(Base64.getDecoder().decode(encodedUserPassword.getBytes()));
+            //We Decode username and password (username:password)
+            String[] usernameAndPassword = new String(Base64.getDecoder().decode(encodedUserPassword.getBytes())).split(":");
 
-            //Split username and password tokens
-            final StringTokenizer tokenizer = new StringTokenizer(usernameAndPassword, ":");
-            final String username = tokenizer.nextToken();
-            final String password = tokenizer.nextToken();
+            final String username = usernameAndPassword[0];
+            final String password = usernameAndPassword[1];
 
-            log.info(username + " tries to log in with " + password);
+            log.info(username + " tries to log in");
 
-            //Verify user access
+            //We verify user access rights according to roles
+            //After Authentication we are doing Authorization
             if (method.isAnnotationPresent(RolesAllowed.class)) {
                 RolesAllowed rolesAnnotation = method.getAnnotation(RolesAllowed.class);
-                EnumSet<UserDatabase.Role> rolesSet =
+                EnumSet<InMemoryLoginModule.Role> rolesSet =
                         Arrays.stream(rolesAnnotation.value())
-                                .map(r -> UserDatabase.Role.valueOf(r))
-                                .collect(Collectors.toCollection(() -> EnumSet.noneOf(UserDatabase.Role.class)));
+                                .map(InMemoryLoginModule.Role::valueOf)
+                                .collect(Collectors.toCollection(() -> EnumSet.noneOf(InMemoryLoginModule.Role.class)));
 
                 //We check to login/password
-                if (!UserDatabase.USER_DATABASE.checkPassword(username, password)) {
+                if (!InMemoryLoginModule.USER_DATABASE.login(username, password)) {
                     requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
                             .entity("Wrong username or password").build());
                     return;
                 }
                 //We check if the role is allowed
-                if (Collections.disjoint(rolesSet, UserDatabase.USER_DATABASE.getUserRoles(username))) {
+                if (!InMemoryLoginModule.isInRoles(rolesSet, username))
                     requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED)
                             .entity("Roles not allowed").build());
-                    return;
-                }
 
-                //We build a new securitycontext to transmit the security data to JAX-RS
-                requestContext.setSecurityContext(new SecurityContext() {
-
-                    @Override
-                    public Principal getUserPrincipal() {
-                        return UserDatabase.USER_DATABASE.getUser(username);
-                    }
-
-                    @Override
-                    public boolean isUserInRole(String role) {
-                        return UserDatabase.USER_DATABASE.getUserRoles(username).contains(UserDatabase.Role.valueOf(role));
-                    }
-
-                    @Override
-                    public boolean isSecure() {
-                        return true;
-                    }
-
-                    @Override
-                    public String getAuthenticationScheme() {
-                        return AUTHENTICATION_SCHEME;
-                    }
-                });
-
+                //We build a new SecurityContext Class to transmit the security data
+                // for this login attempt to JAX-RS
+                requestContext.setSecurityContext(MySecurityContext.newInstance(AUTHENTICATION_SCHEME, username));
 
             }
         }

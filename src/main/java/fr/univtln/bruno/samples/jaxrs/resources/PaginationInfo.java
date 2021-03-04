@@ -13,17 +13,19 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaginationInfo {
-    @HeaderParam("sortKey")
-    @DefaultValue("nom")
-    String sortKey;
-
+    @SuppressWarnings("FieldMayBeFinal")
     @QueryParam("page")
     @Builder.Default
     long page = 1;
 
+    @SuppressWarnings("FieldMayBeFinal")
     @QueryParam("pageSize")
     @Builder.Default
     long pageSize = 10;
+
+    @HeaderParam("sortKey")
+    @DefaultValue("nom")
+    String sortKey;
 
     @QueryParam("nom")
     String nom;
