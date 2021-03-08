@@ -1,7 +1,13 @@
 package fr.univtln.bruno.samples.jaxrs;
 
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
+import fr.univtln.bruno.samples.jaxrs.security.InMemoryLoginModule;
 import fr.univtln.bruno.samples.jaxrs.server.BiblioServer;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -13,7 +19,11 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.message.internal.MediaTypes;
 import org.junit.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -205,4 +215,72 @@ public class ServerIT {
         assertEquals(1, auteurs.size());
         assertEquals("Marie", auteurs.get(0).getPrenom());
     }
+
+    @Test
+    public void refusedLogin() {
+        Response result = webTarget.path("biblio/login")
+                .request()
+                .get();
+        assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), result.getStatus());
+    }
+
+    @Test
+    public void acceptedLogin() {
+        String email="john.doe@nowhere.com";
+        String password="admin";
+        Response result = webTarget.path("biblio/login")
+                .request()
+                .accept(MediaType.TEXT_PLAIN)
+                .header("Authorization",  "Basic "+java.util.Base64.getEncoder().encodeToString((email+":"+password).getBytes()))
+                .get();
+
+        String entity = result.readEntity(String.class);
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
+        Jws<Claims> jws = Jwts.parserBuilder()
+                .setSigningKey(InMemoryLoginModule.KEY)
+                .build()
+                .parseClaimsJws(entity);
+        assertEquals(email,jws.getBody().getSubject());
+    }
+
+    @Test
+    public void jwtAccess() {
+        //Log in to get the token
+        String email="john.doe@nowhere.com";
+        String password="admin";
+        String token = webTarget.path("biblio/login")
+                .request()
+                .accept(MediaType.TEXT_PLAIN)
+                .header("Authorization",  "Basic "+java.util.Base64.getEncoder().encodeToString((email+":"+password).getBytes()))
+                .get(String.class);
+
+        //We access a JWT protected URL with the token
+        Response result = webTarget.path("biblio/secured")
+                .request()
+                .header( "Authorization",  "Bearer "+token)
+                .get();
+        assertEquals(Response.Status.OK.getStatusCode(), result.getStatus());
+        assertEquals("Access with JWT ok for Doe, John <john.doe@nowhere.com>",result.readEntity(String.class));
+    }
+
+    @Test
+    public void jwtAccessDenied() {
+        String forgedToken = Jwts.builder()
+                .setIssuer("sample-jaxrs")
+                .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
+                .setSubject("john.doe@nowhere.com")
+                .claim("firstname", "John")
+                .claim("lastname", "Doe")
+                .setExpiration(Date.from(LocalDateTime.now().plus(15, ChronoUnit.MINUTES).atZone(ZoneId.systemDefault()).toInstant()))
+                //A RANDOM KEY DIFFERENT FROM THE SERVER
+                .signWith( Keys.secretKeyFor(SignatureAlgorithm.HS256)).compact();
+
+        //We access a JWT protected URL with the token
+        Response result = webTarget.path("biblio/secured")
+                .request()
+                .header( "Authorization",  "Bearer "+forgedToken)
+                .get();
+        assertNotEquals(Response.Status.OK.getStatusCode(), result.getStatus());
+    }
+
 }

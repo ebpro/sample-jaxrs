@@ -6,6 +6,10 @@ import jakarta.ws.rs.QueryParam;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The Pagination information to be injected with @BeanPararm Filter Queries.
+ * Each field is annotated with a JAX-RS parameter injection.
+ */
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @ToString
@@ -13,17 +17,19 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaginationInfo {
-    @HeaderParam("sortKey")
-    @DefaultValue("nom")
-    String sortKey;
-
+    @SuppressWarnings("FieldMayBeFinal")
     @QueryParam("page")
     @Builder.Default
     long page = 1;
 
+    @SuppressWarnings("FieldMayBeFinal")
     @QueryParam("pageSize")
     @Builder.Default
     long pageSize = 10;
+
+    @HeaderParam("sortKey")
+    @DefaultValue("nom")
+    String sortKey;
 
     @QueryParam("nom")
     String nom;

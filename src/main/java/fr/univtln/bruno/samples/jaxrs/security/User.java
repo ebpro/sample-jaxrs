@@ -23,17 +23,19 @@ import java.util.*;
 @EqualsAndHashCode(of = "email")
 public class User implements Principal {
     UUID uuid = UUID.randomUUID();
-    String firstName, lastName, email;
+    String firstName;
+    String lastName;
+    String email;
     byte[] passwordHash;
     byte[] salt = new byte[16];
 
     @Delegate
-    EnumSet<UserDatabase.Role> roles;
+    Set<InMemoryLoginModule.Role> roles;
 
     SecureRandom random = new SecureRandom();
 
     @Builder
-    public User(String firstName, String lastName, String email, String password, EnumSet<UserDatabase.Role> roles)
+    public User(String firstName, String lastName, String email, String password, Set<InMemoryLoginModule.Role> roles)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -55,7 +57,8 @@ public class User implements Principal {
         return email + "" + Base64.getEncoder().encodeToString(passwordHash);
     }
 
-    public boolean checkPassword(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    @SneakyThrows
+    public boolean checkPassword(String password) {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] submittedPasswordHash = factory.generateSecret(spec).getEncoded();

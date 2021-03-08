@@ -40,12 +40,12 @@ curl -s -D - -H "Accept: application/json"  \
 
 Removes an author
 ```shell
-curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/authors/1"
+curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/auteurs/1"
 ```
 
 Removes all authors
 ```shell
-curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/authors"
+curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/auteurs"
 ```
 
 Adds an author
@@ -77,8 +77,13 @@ Filter resources with query parameters :
 curl -v -H "Accept: application/json"  \
  "http://127.0.0.1:9998/myapp/biblio/auteurs/filter?nom=Durand&prenom⁼Marie"
 ```
+
 Control sort key with header param (default value "nom") :
 ```shell
 curl -v -H "Accept: application/json"  -H "sortKey: prenom"\
 "http://127.0.0.1:9998/myapp/biblio/auteurs/filter"
+```
+Login and get a Java Web Token
+```shell
+TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/myapp/biblio/login")
 ```

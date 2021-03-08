@@ -1,0 +1,101 @@
+# curl -D - http://localhost:9998/myapp/biblio
+### Get a Hello message
+GET http://localhost:9998/myapp/biblio
+
+### Init the database with two authors
+PUT http://localhost:9998/myapp/biblio/init
+
+### Get author 1 in JSON
+GET http://localhost:9998/myapp/biblio/auteurs/1
+Accept: application/json
+
+### Get author 2 in XML
+GET http://localhost:9998/myapp/biblio/auteurs/2
+Accept: text/xml
+
+### Get authors in JSON
+GET http://localhost:9998/myapp/biblio/auteurs
+Accept: application/json
+
+### Removes an author
+DELETE http://localhost:9998/myapp/biblio/auteurs/1
+
+### Removes all authors
+DELETE http://localhost:9998/myapp/biblio/auteurs
+
+### Adds an author
+POST http://localhost:9998/myapp/biblio/auteurs/
+Accept: application/json
+Content-type: application/json
+
+{"nom":"John","prenom":"Smith","biographie":"My life"}
+
+### Fully update an author
+PUT http://localhost:9998/myapp/biblio/auteurs/1
+Accept: application/json
+Content-type: application/json
+
+{"nom":"Martin","prenom":"Jean","biographie":"ma vie"}
+
+### If a resource doesn't exist an exception is raised, and the 404 http status code is returned
+GET http://localhost:9998/myapp/biblio/auteurs/1000
+Accept: application/json
+
+### If a resource doesn't exist an exception is raised, and the 404 http status code is returned
+GET http://localhost:9998/myapp/biblio/auteurs/1000
+Accept: text/xml
+
+### Filter resources with query parameters :
+GET http://localhost:9998/myapp/biblio/auteurs/filter?nom=Durand&prenom⁼Marie
+Accept: application/json
+
+### Control sort key with header param (default value "nom") :
+GET http://127.0.0.1:9998/myapp/biblio/auteurs/filter
+Accept: application/json
+sortKey: prenom
+
+### Init the database with 10k random authors
+PUT http://localhost:9998/myapp/biblio/init/10000
+
+### Get page 3 with page size of 10 authors sorted by lastname
+GET http://localhost:9998/myapp/biblio/auteurs/page?pageSize=10&page=3
+Accept: application/json
+sortKey: prenom
+
+### Returns the context of the query (without authentication).
+GET http://localhost:9998/myapp/biblio/context
+biblio-demo-header-1: myvalue
+biblio-demo-header-2: anothervalue
+
+### Authorization by token, part 1. Retrieve and save token with Basic Authentication
+#  TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/myapp/biblio/login")
+GET http://localhost:9998/myapp/biblio/login
+Authorization: Basic john.doe@nowhere.com admin
+
+> {% client.global.set("auth_token", response.body); %}
+
+### Authorization by token, part 2. Use token to authorize. Admin & User OK
+# curl -H "Authorization: Bearer $TOKEN" -v "http://localhost:9998/myapp/biblio/secured"
+GET http://localhost:9998/myapp/biblio/secured
+Authorization: Bearer {{auth_token}}
+
+### Authorization by token, part 2. Use token to authorize. Admin OK
+GET http://localhost:9998/myapp/biblio/secured/admin
+Authorization: Bearer {{auth_token}}
+
+### Authorization with another user.
+#  TOKEN=$(curl -v --user "mary.roberts@here.net:user" "http://localhost:9998/myapp/biblio/login")
+GET http://localhost:9998/myapp/biblio/login
+Authorization: Basic mary.roberts@here.net user
+
+> {% client.global.set("auth_token", response.body); %}
+
+### Authorization by token, part 2. Use token to authorize. Admin & User OK.
+# curl -H "Authorization: Bearer $TOKEN" -v "http://localhost:9998/myapp/biblio/secured"
+GET http://localhost:9998/myapp/biblio/secured
+Authorization: Bearer {{auth_token}}
+
+### Authorization by token, part 2. Use token to authorize. Admin KO.
+GET http://localhost:9998/myapp/biblio/secured/admin
+Authorization: Bearer {{auth_token}}
+

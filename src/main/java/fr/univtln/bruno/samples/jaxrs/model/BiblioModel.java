@@ -3,15 +3,11 @@ package fr.univtln.bruno.samples.jaxrs.model;
 import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
 import fr.univtln.bruno.samples.jaxrs.resources.PaginationInfo;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.core.*;
 import jakarta.xml.bind.annotation.XmlAccessType;
 import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.*;
-import lombok.experimental.Delegate;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.java.Log;
 import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
@@ -27,16 +23,26 @@ import java.util.stream.Stream;
 
 import static fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Field.valueOf;
 
+
+/**
+ * The type Biblio model. A in memory instance of a Library model. Kind of a mock.
+ */
 @Log
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(staticName = "of")
 public class BiblioModel {
-    private static AtomicLong lastId = new AtomicLong(0);
-
-    @Delegate
+    private static final AtomicLong lastId = new AtomicLong(0);
+    //@Delegate
     final MutableLongObjectMap<Auteur> auteurs = LongObjectMaps.mutable.empty();
 
+    /**
+     * Add auteur auteur.
+     *
+     * @param auteur the auteur
+     * @return the auteur
+     * @throws IllegalArgumentException the illegal argument exception
+     */
     public Auteur addAuteur(Auteur auteur) throws IllegalArgumentException {
         if (auteur.id != 0) throw new IllegalArgumentException();
         auteur.id = lastId.incrementAndGet();
@@ -44,6 +50,15 @@ public class BiblioModel {
         return auteur;
     }
 
+    /**
+     * Update auteur auteur by id and data contains in a author instance (except the id).
+     *
+     * @param id     the id
+     * @param auteur the auteur
+     * @return the auteur
+     * @throws NotFoundException        the not found exception
+     * @throws IllegalArgumentException the illegal argument exception
+     */
     public Auteur updateAuteur(long id, Auteur auteur) throws NotFoundException, IllegalArgumentException {
         if (auteur.id != 0) throw new IllegalArgumentException();
         auteur.id = id;
@@ -52,33 +67,62 @@ public class BiblioModel {
         return auteur;
     }
 
+    /**
+     * Remove one auteur by id.
+     *
+     * @param id the id
+     * @throws NotFoundException the not found exception
+     */
     public void removeAuteur(long id) throws NotFoundException {
         if (!auteurs.containsKey(id)) throw new NotFoundException();
         auteurs.remove(id);
     }
 
+    /**
+     * Gets one auteur id.
+     *
+     * @param id the id
+     * @return the auteur
+     * @throws NotFoundException the not found exception
+     */
     public Auteur getAuteur(long id) throws NotFoundException {
         if (!auteurs.containsKey(id)) throw new NotFoundException();
         return auteurs.get(id);
     }
 
+    /**
+     * Gets the number of authors.
+     *
+     * @return the auteur size
+     */
     public int getAuteurSize() {
         return auteurs.size();
     }
 
+    /**
+     * Returns a sorted, filtered and paginated list of authors.
+     *
+     * @param paginationInfo the pagination info
+     * @return the sorted, filtered page.
+     */
     public List<Auteur> getWithFilter(PaginationInfo paginationInfo) {
+        //We build a author stream, first we add sorting
         Stream<Auteur> auteurStream = auteurs.stream()
                 .sorted(Comparator.comparing(auteur -> switch (valueOf(paginationInfo.getSortKey().toUpperCase())) {
                     case NOM -> auteur.getNom();
                     case PRENOM -> auteur.getPrenom();
                     default -> throw new InvalidParameterException();
                 }));
+
+        //The add filters according to parameters
         if (paginationInfo.getNom() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getNom().equalsIgnoreCase(paginationInfo.getNom()));
         if (paginationInfo.getPrenom() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getPrenom().equalsIgnoreCase(paginationInfo.getPrenom()));
         if (paginationInfo.getBiographie() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getBiographie().contains(paginationInfo.getBiographie()));
+
+        //Finally add pagination instructions.
         if ((paginationInfo.getPage() > 0) && (paginationInfo.getPageSize() > 0)) {
             auteurStream = auteurStream
                     .skip(paginationInfo.getPageSize() * (paginationInfo.getPage() - 1))
@@ -88,13 +132,32 @@ public class BiblioModel {
         return auteurStream.collect(Collectors.toList());
     }
 
+    /**
+     * Removes all authors.
+     */
     public void supprimerAuteurs() {
         auteurs.clear();
         lastId.set(0);
     }
 
-    public enum Field {NOM, PRENOM, BIOGRAPHIE}
+    /**
+     * The list of fields of author that can used in filters.
+     */
+    public enum Field {
+        NOM,
+        /**
+         * Prenom field.
+         */
+        PRENOM,
+        /**
+         * Biographie field.
+         */
+        BIOGRAPHIE
+    }
 
+    /**
+     * The type Author.
+     */
     @Builder
     @Getter
     @Setter
