@@ -2,9 +2,11 @@
 
 ## Usage
 
+See a complete set of samples [here](queries/sample-requests.rest)
+
 Compile, package, and run Integration Tests (verify). Launch the REST Server.
 ```shell
-git clone --branch jakarta \
+git clone \
   https://github.com/emmanuelbruno/cours-java-librarymanager-rest.git
 mvn clean verify && \
   mvn exec:java
@@ -86,4 +88,5 @@ curl -v -H "Accept: application/json"  -H "sortKey: prenom"\
 Login and get a Java Web Token
 ```shell
 TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/myapp/biblio/login")
+curl -H "Authorization: Bearer $TOKEN" -v "http://localhost:9998/myapp/biblio/secured
 ```
