@@ -20,7 +20,7 @@ public class BusinessException extends Exception implements Serializable {
     /**
      * The Status.
      */
-    Response.Status status;
+    final Response.Status status;
 
     /**
      * Instantiates a new Business exception.

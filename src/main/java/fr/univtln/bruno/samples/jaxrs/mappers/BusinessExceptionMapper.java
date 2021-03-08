@@ -1,9 +1,6 @@
 package fr.univtln.bruno.samples.jaxrs.mappers;
 
 import fr.univtln.bruno.samples.jaxrs.exceptions.BusinessException;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.HttpHeaders;
-import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
