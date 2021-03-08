@@ -8,7 +8,6 @@ import jakarta.xml.bind.annotation.XmlAccessorType;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.*;
-import lombok.experimental.Delegate;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.java.Log;
 import org.eclipse.collections.api.map.primitive.MutableLongObjectMap;
@@ -26,18 +25,15 @@ import static fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Field.valueOf;
 
 
 /**
- * The type Biblio model.
+ * The type Biblio model. A in memory instance of a Library model. Kind of a mock.
  */
 @Log
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(staticName = "of")
 public class BiblioModel {
-    public enum Field {NOM, PRENOM, BIOGRAPHIE}
-
     private static final AtomicLong lastId = new AtomicLong(0);
-
-    @Delegate
+    //@Delegate
     final MutableLongObjectMap<Auteur> auteurs = LongObjectMaps.mutable.empty();
 
     /**
@@ -55,7 +51,7 @@ public class BiblioModel {
     }
 
     /**
-     * Update auteur auteur.
+     * Update auteur auteur by id and data contains in a author instance (except the id).
      *
      * @param id     the id
      * @param auteur the auteur
@@ -72,7 +68,7 @@ public class BiblioModel {
     }
 
     /**
-     * Remove auteur.
+     * Remove one auteur by id.
      *
      * @param id the id
      * @throws NotFoundException the not found exception
@@ -83,7 +79,7 @@ public class BiblioModel {
     }
 
     /**
-     * Gets auteur.
+     * Gets one auteur id.
      *
      * @param id the id
      * @return the auteur
@@ -95,14 +91,13 @@ public class BiblioModel {
     }
 
     /**
-     * Gets auteur size.
+     * Gets the number of authors.
      *
      * @return the auteur size
      */
     public int getAuteurSize() {
         return auteurs.size();
     }
-
 
     /**
      * Returns a sorted, filtered and paginated list of authors.
@@ -120,11 +115,11 @@ public class BiblioModel {
                 }));
 
         //The add filters according to parameters
-        if (paginationInfo.getNom()!=null)
+        if (paginationInfo.getNom() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getNom().equalsIgnoreCase(paginationInfo.getNom()));
-        if (paginationInfo.getPrenom()!=null)
+        if (paginationInfo.getPrenom() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getPrenom().equalsIgnoreCase(paginationInfo.getPrenom()));
-        if (paginationInfo.getBiographie()!=null)
+        if (paginationInfo.getBiographie() != null)
             auteurStream = auteurStream.filter(auteur -> auteur.getBiographie().contains(paginationInfo.getBiographie()));
 
         //Finally add pagination instructions.
@@ -137,13 +132,31 @@ public class BiblioModel {
         return auteurStream.collect(Collectors.toList());
     }
 
+    /**
+     * Removes all authors.
+     */
     public void supprimerAuteurs() {
         auteurs.clear();
         lastId.set(0);
     }
 
     /**
-     * The type Auteur.
+     * The list of fields of author that can used in filters.
+     */
+    public enum Field {
+        NOM,
+        /**
+         * Prenom field.
+         */
+        PRENOM,
+        /**
+         * Biographie field.
+         */
+        BIOGRAPHIE
+    }
+
+    /**
+     * The type Author.
      */
     @Builder
     @Getter

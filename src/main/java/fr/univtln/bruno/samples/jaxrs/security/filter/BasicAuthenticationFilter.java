@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * The type Authentication filter is a JAX-RS filter (@Provider with implements ContainerRequestFilter) is applied to every request whose method is annotated with @BasicAuth
+ * Authentication filter is a JAX-RS filter (@Provider with implements ContainerRequestFilter) is applied to every request whose method is annotated with @BasicAuth
  * as it is itself annotated with @BasicAuth (a personal annotation).
  * It performs authentication and check permissions against the acceded method with a basic authentication.
  */

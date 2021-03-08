@@ -6,10 +6,12 @@ import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.java.Log;
 
 @SuppressWarnings("unused")
 @Provider
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Log
 public class GenericExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception ex) {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)

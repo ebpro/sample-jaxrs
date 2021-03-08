@@ -41,6 +41,10 @@ Content-type: application/json
 GET http://localhost:9998/myapp/biblio/auteurs/1000
 Accept: application/json
 
+### If a resource doesn't exist an exception is raised, and the 404 http status code is returned
+GET http://localhost:9998/myapp/biblio/auteurs/1000
+Accept: text/xml
+
 ### Filter resources with query parameters :
 GET http://localhost:9998/myapp/biblio/auteurs/filter?nom=Durand&prenom⁼Marie
 Accept: application/json
@@ -57,6 +61,11 @@ PUT http://localhost:9998/myapp/biblio/init/10000
 GET http://localhost:9998/myapp/biblio/auteurs/page?pageSize=10&page=3
 Accept: application/json
 sortKey: prenom
+
+### Returns the context of the query (without authentication).
+GET http://localhost:9998/myapp/biblio/context
+biblio-demo-header-1: myvalue
+biblio-demo-header-2: anothervalue
 
 ### Authorization by token, part 1. Retrieve and save token with Basic Authentication
 #  TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/myapp/biblio/login")
@@ -89,3 +98,4 @@ Authorization: Bearer {{auth_token}}
 ### Authorization by token, part 2. Use token to authorize. Admin KO.
 GET http://localhost:9998/myapp/biblio/secured/admin
 Authorization: Bearer {{auth_token}}
+

@@ -13,7 +13,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 
 /**
- * The type User database.
+ * this class model a simple in memory role based authentication database (RBAC).
+ * Password are salted and hashed.
  */
 @Log
 @ToString

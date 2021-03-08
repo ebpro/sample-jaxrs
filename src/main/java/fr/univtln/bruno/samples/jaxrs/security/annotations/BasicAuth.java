@@ -9,6 +9,10 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
+/**
+ * A annotation for method to be secured with Basic Auth
+ * @see fr.univtln.bruno.samples.jaxrs.security.filter.BasicAuthenticationFilter
+ */
 @NameBinding
 @Retention(RUNTIME)
 @Target({TYPE, METHOD})

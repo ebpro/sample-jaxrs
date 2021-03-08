@@ -35,7 +35,7 @@ public class BiblioClient {
                 .get(Auteur.class);
         log.info(auteur.toString());
 
-        //Log in to get the token
+        //Log in to get the token with basci authentication
         String email = "john.doe@nowhere.com";
         String password = "admin";
         String token = webResource.path("biblio/login")

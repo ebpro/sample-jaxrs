@@ -5,10 +5,10 @@ import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel;
 import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
+import fr.univtln.bruno.samples.jaxrs.security.InMemoryLoginModule;
+import fr.univtln.bruno.samples.jaxrs.security.User;
 import fr.univtln.bruno.samples.jaxrs.security.annotations.BasicAuth;
 import fr.univtln.bruno.samples.jaxrs.security.annotations.JWTAuth;
-import fr.univtln.bruno.samples.jaxrs.security.User;
-import fr.univtln.bruno.samples.jaxrs.security.InMemoryLoginModule;
 import fr.univtln.bruno.samples.jaxrs.status.Status;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.security.RolesAllowed;
@@ -25,15 +25,26 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * The Biblio resource.
+ * A demo JAXRS class, that manages authors and offers a secured access.
+ */
 @Log
 // The Java class will be hosted at the URI path "/biblio"
 @Path("biblio")
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 public class BiblioResource {
+    //A in memory instance of a Library model. Kind of a mock.
     private static final BiblioModel modeleBibliotheque = BiblioModel.of();
 
+    //A random number generator
     private static final SecureRandom random = new SecureRandom();
 
+    /**
+     * The simpliest method that just return "hello" in plain text with GET on the default path "biblio".
+     *
+     * @return the string
+     */
     @SuppressWarnings("SameReturnValue")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -41,6 +52,12 @@ public class BiblioResource {
         return "hello";
     }
 
+    /**
+     * An init method that add two authors with a PUT on the default path.
+     *
+     * @return the number of generated authors.
+     * @throws IllegalArgumentException the illegal argument exception
+     */
     @PUT
     @Path("init")
     public int init() throws IllegalArgumentException {
@@ -50,6 +67,15 @@ public class BiblioResource {
         return modeleBibliotheque.getAuteurSize();
     }
 
+    /**
+     * An init method that add a given number of random authors whose names are just random letters on PUT.
+     * The number of authors if given in the path avec bound to the name size. The needed format (an integer) is checked with a regular expression [0-9]+
+     * The parameter is injected with @PathParam
+     *
+     * @param size the number of authors to add
+     * @return the int number of generated authors.
+     * @throws IllegalArgumentException the illegal argument exception
+     */
     @PUT
     @Path("init/{size:[0-9]+}")
     public int init(@PathParam("size") int size) throws IllegalArgumentException {
@@ -62,17 +88,30 @@ public class BiblioResource {
         return modeleBibliotheque.getAuteurSize();
     }
 
+    /**
+     * A random string generator
+     *
+     * @param targetStringLength the length of the String
+     * @return
+     */
     private String randomString(int targetStringLength) {
         int letterA = 97;
         int letterZ = 122;
-
-
         return random.ints(letterA, letterZ + 1)
                 .limit(targetStringLength)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
     }
 
+    /**
+     * Update an author with an given id.
+     *
+     * @param id     the id injected from the path param "id"
+     * @param auteur a injected author made from the JSON data (@Consumes) from body of the request. This author is forbidden to havce an Id.
+     * @return The resulting author with its id.
+     * @throws NotFoundException        is returned if no author has the "id".
+     * @throws IllegalArgumentException is returned if an "id" is also given in the request body.
+     */
     @PUT
     @Path("auteurs/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -81,6 +120,7 @@ public class BiblioResource {
     }
 
     /**
+     * Adds an new author to the data.
      * Status annotation is a trick to fine tune 2XX status codes (see the status package).
      *
      * @param auteur The author to be added without its id.
@@ -95,30 +135,61 @@ public class BiblioResource {
         return modeleBibliotheque.addAuteur(auteur);
     }
 
+    /**
+     * Removes an author by id from the data.
+     *
+     * @param id the id of the author to remove
+     * @throws NotFoundException is returned if no author has the "id".
+     */
     @DELETE
     @Path("auteurs/{id}")
     public void supprimerAuteur(@PathParam("id") final long id) throws NotFoundException {
         modeleBibliotheque.removeAuteur(id);
     }
 
+    /**
+     * Removes every authors
+     */
     @DELETE
     @Path("auteurs")
     public void supprimerAuteurs() {
         modeleBibliotheque.supprimerAuteurs();
     }
 
+    /**
+     * Find and return an author by id with a GET on the path "biblio/auteurs/{id}" where  {id} is the needed id.
+     * The path parameter "id" is injected with @PathParam.
+     *
+     * @param id the needed author id.
+     * @return the auteur with id.
+     * @throws NotFoundException is returned if no author has the "id".
+     */
     @GET
     @Path("auteurs/{id}")
     public Auteur getAuteur(@PathParam("id") final long id) throws NotFoundException {
         return modeleBibliotheque.getAuteur(id);
     }
 
+    /**
+     * Gets auteurs.
+     *
+     * @return the auteurs
+     */
     @GET
     @Path("auteurs")
     public Collection<Auteur> getAuteurs() {
         return modeleBibliotheque.getAuteurs().values();
     }
 
+    /**
+     * Gets a list of "filtered" authors.
+     *
+     * @param nom        an optional exact filter on the name.
+     * @param prenom     an optional exact filter on the firstname.
+     * @param biographie an optional contains filter on the biography.
+     * @param sortKey    the sort key (prenom or nom).
+     * @return the filtered auteurs
+     */
     @GET
     @Path("auteurs/filter")
     public List<Auteur> getFilteredAuteurs(@QueryParam("nom") String nom,
@@ -135,23 +206,50 @@ public class BiblioResource {
         return modeleBibliotheque.getWithFilter(paginationInfo);
     }
 
+    /**
+     * Gets a page of authors after applying a sort.
+     *
+     * @param paginationInfo the pagination info represented as a class injected with @BeanParam.
+     * @return the page of authors.
+     */
     @GET
     @Path("auteurs/page")
     public List<Auteur> getAuteursPage(@BeanParam PaginationInfo paginationInfo) {
         return modeleBibliotheque.getWithFilter(paginationInfo);
     }
 
+    /**
+     * A GET method to access the context of the request : The URI, the HTTP headers, the request and the security context (needs authentication see below).
+     *
+     * @param uriInfo         the uri info
+     * @param httpHeaders     the http headers
+     * @param request         the request
+     * @param securityContext the security context
+     * @return A string representation of the available data.
+     */
     @GET
     @Path("context")
-    @RolesAllowed("ADMIN")
     public String getContext(@Context UriInfo uriInfo, @Context HttpHeaders httpHeaders, @Context Request request, @Context SecurityContext securityContext) {
-        return "UriInfo: (" + uriInfo.getRequestUri().toString()
-               + ")\n HttpHeaders(" + httpHeaders.getRequestHeaders().toString()
-               + ")\n SecurityContext(Auth.scheme: [" + securityContext.getAuthenticationScheme()
-               + "] user: [" + securityContext.getUserPrincipal().getName()
-               + "] secured: [" + securityContext.isSecure() + "] )";
+        String result = "UriInfo: (" + uriInfo.getRequestUri().toString() + ")\n"
+                        + "Method: ("+request.getMethod()+")\n"
+                        + "HttpHeaders(" + httpHeaders.getRequestHeaders().toString() + ")\n";
+
+        if (securityContext != null) {
+            result += " SecurityContext(Auth.scheme: [" + securityContext.getAuthenticationScheme() + "] \n";
+            if (securityContext.getUserPrincipal() != null)
+                result += "    user: [" + securityContext.getUserPrincipal().getName() + "] \n";
+            result += "    secured: [" + securityContext.isSecure() + "] )";
+        }
+        return result;
     }
 
+    /**
+     * A GET restricted to ADMIN role with basic authentication.
+     * @see fr.univtln.bruno.samples.jaxrs.security.filter.BasicAuthenticationFilter
+     *
+     * @param securityContext the security context
+     * @return the restricted to admins
+     */
     @GET
     @Path("adminsonly")
     @RolesAllowed("ADMIN")
@@ -160,6 +258,13 @@ public class BiblioResource {
         return "secret for admins !" + securityContext.getUserPrincipal().getName();
     }
 
+    /**
+     * A GET restricted to USER role with basic authentication (and not ADMIN !).
+     * @see fr.univtln.bruno.samples.jaxrs.security.filter.BasicAuthenticationFilter
+     *
+     * @param securityContext the security context
+     * @return the restricted to users
+     */
     @GET
     @Path("usersonly")
     @RolesAllowed("USER")
@@ -168,6 +273,13 @@ public class BiblioResource {
         return "secret for users ! to " + securityContext.getUserPrincipal().getName();
     }
 
+    /**
+     * A GET restricted to USER & ADMIN roles, secured with a JWT Token.
+     * @see fr.univtln.bruno.samples.jaxrs.security.filter.JsonWebTokenFilter
+     *
+     * @param securityContext the security context
+     * @return the string
+     */
     @GET
     @Path("secured")
     @RolesAllowed({"USER", "ADMIN"})
@@ -178,6 +290,12 @@ public class BiblioResource {
         return "Access with JWT ok for " + securityContext.getUserPrincipal().getName();
     }
 
+    /**
+     * A GET restricted to ADMIN roles, secured with a JWT Token.
+     *
+     * @param securityContext the security context
+     * @return the string
+     */
     @GET
     @Path("secured/admin")
     @RolesAllowed({"ADMIN"})
@@ -188,6 +306,12 @@ public class BiblioResource {
         return "Access with JWT ok for " + securityContext.getUserPrincipal().getName();
     }
 
+    /**
+     * a GET method to obtain a JWT token with basic authentication for USER and ADMIN roles.
+     *
+     * @param securityContext the security context
+     * @return the base64 encoded JWT Token.
+     */
     @GET
     @Path("login")
     @RolesAllowed({"USER", "ADMIN"})

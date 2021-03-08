@@ -6,6 +6,10 @@ import jakarta.ws.rs.QueryParam;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+/**
+ * The Pagination information to be injected with @BeanPararm Filter Queries.
+ * Each field is annotated with a JAX-RS parameter injection.
+ */
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
 @ToString
