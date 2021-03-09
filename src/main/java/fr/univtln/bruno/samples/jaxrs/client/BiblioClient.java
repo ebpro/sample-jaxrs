@@ -1,6 +1,6 @@
 package fr.univtln.bruno.samples.jaxrs.client;
 
-import fr.univtln.bruno.samples.jaxrs.model.BiblioModel.Auteur;
+import fr.univtln.bruno.samples.jaxrs.model.Library.Author;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -15,7 +15,7 @@ import lombok.extern.java.Log;
 @Log
 public class BiblioClient {
     public static void main(String[] args) {
-        // create the client
+        // create the rest client
         Client client = ClientBuilder.newClient();
         WebTarget webResource = client.target("http://localhost:9998/myapp");
 
@@ -25,15 +25,15 @@ public class BiblioClient {
         log.info(responseInitAsString);
 
         //Send a get and parse the response as a String
-        String responseAuteursAsJsonString = webResource.path("biblio/auteurs")
+        String responseAuteursAsJsonString = webResource.path("biblio/authors")
                 .request().get(String.class);
         log.info(responseAuteursAsJsonString);
 
         //Idem but the result is deserialised to an instance of Auteur
-        Auteur auteur = webResource.path("biblio/auteurs/1")
+        Author author = webResource.path("biblio/authors/1")
                 .request()
-                .get(Auteur.class);
-        log.info(auteur.toString());
+                .get(Author.class);
+        log.info(author.toString());
 
         //Log in to get the token with basci authentication
         String email = "john.doe@nowhere.com";

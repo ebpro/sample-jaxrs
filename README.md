@@ -25,29 +25,29 @@ curl -s -D - -X PUT "http://localhost:9998/myapp/biblio/init"
 Get author 1 in JSON
 ```shell
 curl -s -D - -H "Accept: application/json"  \
-  http://localhost:9998/myapp/biblio/auteurs/1
+  http://localhost:9998/myapp/biblio/authors/1
 ```
 
 Get author 2 in XML
 ```shell
 curl -s -D - -H "Accept: text/xml"  \
-  http://localhost:9998/myapp/biblio/auteurs/2
+  http://localhost:9998/myapp/biblio/authors/2
 ```
 
 Get authors in JSON
 ```shell
 curl -s -D - -H "Accept: application/json"  \
-  http://localhost:9998/myapp/biblio/auteurs
+  http://localhost:9998/myapp/biblio/authors
 ```
 
 Removes an author
 ```shell
-curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/auteurs/1"
+curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/authors/1"
 ```
 
 Removes all authors
 ```shell
-curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/auteurs"
+curl -s -D - -X DELETE "http://localhost:9998/myapp/biblio/authors"
 ```
 
 Adds an author
@@ -56,7 +56,7 @@ curl -s -D - -H "Accept: application/json"  \
   -H "Content-type: application/json"  \
   -X POST \
   -d '{"nom":"John","prenom":"Smith","biographie":"My life"}' \
-  "http://localhost:9998/myapp/biblio/auteurs/"
+  "http://localhost:9998/myapp/biblio/authors/"
 ```
 
 Fully update an author
@@ -65,25 +65,25 @@ curl -s -D - -H "Accept: application/json"  \
   -H "Content-type: application/json"  \
   -X PUT \
   -d '{"nom":"Martin","prenom":"Jean","biographie":"ma vie"}' \
-  "http://localhost:9998/myapp/biblio/auteurs/1"
+  "http://localhost:9998/myapp/biblio/authors/1"
 ```
 
 If a resource doesn't exist an exception is raised, and the 404 http status code is returned
 ```shell
 curl -s -D - -H "Accept: application/json"  \
-  http://localhost:9998/myapp/biblio/auteurs/1000
+  http://localhost:9998/myapp/biblio/authors/1000
 ```
 
 Filter resources with query parameters :
 ```shell
 curl -v -H "Accept: application/json"  \
- "http://127.0.0.1:9998/myapp/biblio/auteurs/filter?nom=Durand&prenom⁼Marie"
+ "http://127.0.0.1:9998/myapp/biblio/authors/filter?nom=Durand&prenom⁼Marie"
 ```
 
 Control sort key with header param (default value "nom") :
 ```shell
 curl -v -H "Accept: application/json"  -H "sortKey: prenom"\
-"http://127.0.0.1:9998/myapp/biblio/auteurs/filter"
+"http://127.0.0.1:9998/myapp/biblio/authors/filter"
 ```
 Login and get a Java Web Token
 ```shell

@@ -9,7 +9,8 @@ import lombok.Getter;
 import java.io.Serializable;
 
 /**
- * The type Business exception, used add HTTP (HATEOS) capacities to exceptions.
+ * The type Business exception is our main HATEOS exception type.
+ * It adds a HTTP Status.
  */
 @Getter
 @JsonIgnoreProperties({"stackTrace"})
@@ -23,12 +24,23 @@ public class BusinessException extends Exception implements Serializable {
     final Response.Status status;
 
     /**
-     * Instantiates a new Business exception.
+     * Instantiates a new Business exception with the default message.
      *
      * @param status the status
      */
     public BusinessException(Response.Status status) {
         super(status.getReasonPhrase());
+        this.status = status;
+    }
+
+    /**
+     * Instantiates a new Business exception with the default message.
+     *
+     * @param status the status
+     * @param message the message
+     */
+    public BusinessException(Response.Status status,String message) {
+        super(message);
         this.status = status;
     }
 }

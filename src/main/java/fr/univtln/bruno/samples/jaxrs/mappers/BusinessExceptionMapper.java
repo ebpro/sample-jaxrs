@@ -8,6 +8,10 @@ import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.java.Log;
 
+/**
+ * The type Business exception mapper automatically produces a HTTP Response
+ * if a BusinessException is thrown.
+ */
 @SuppressWarnings("unused")
 @Provider
 @FieldDefaults(level = AccessLevel.PRIVATE)

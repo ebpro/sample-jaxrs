@@ -22,7 +22,7 @@ public class BiblioServer {
      * The constant BASE_URI.
      */
 // Base URI the Grizzly HTTP server will listen on
-    public static final String BASE_URI = "http://0.0.0.0:9998/myapp";
+    public static final String BASE_URI = "http://0.0.0.0:9998/mylibrary";
 
     public static final int TLS_PORT = 4443;
 

@@ -28,15 +28,15 @@ public class PaginationInfo {
     long pageSize = 10;
 
     @HeaderParam("sortKey")
-    @DefaultValue("nom")
+    @DefaultValue("name")
     String sortKey;
 
-    @QueryParam("nom")
-    String nom;
+    @QueryParam("name")
+    String name;
 
-    @QueryParam("prenom")
-    String prenom;
+    @QueryParam("firstname")
+    String firstname;
 
-    @QueryParam("biographie")
-    String biographie;
+    @QueryParam("biography")
+    String biography;
 }
