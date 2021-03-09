@@ -68,6 +68,19 @@
             <artifactId>jersey-client</artifactId>
         </dependency>
 
+        <!-- HTTP2 -->
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-http2</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.grizzly</groupId>
+            <artifactId>grizzly-npn-bootstrap</artifactId>
+            <version>2.0.0</version>
+        </dependency>
+
         <!-- Eclipse Collections -->
         <dependency>
             <groupId>org.eclipse.collections</groupId>
@@ -403,6 +416,58 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- SSL Certificates -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>keytool-maven-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>generateKeyPair</id>
+                        <goals>
+                            <goal>generateKeyPair</goal>
+                        </goals>
+                        <configuration>
+                            <skipIfExist>true</skipIfExist>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>generateCertificateRequest</id>
+                        <goals>
+                            <goal>generateCertificateRequest</goal>
+                        </goals>
+                        <configuration>
+                            <file>src/main/resources/ssl/test.csr</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <id>generateCertificate</id>
+                        <goals>
+                            <goal>generateCertificate</goal>
+                        </goals>
+                        <configuration>
+                            <infile>src/main/resources/ssl/test.csr</infile>
+                            <outfile>src/main/resources/ssl/test.crt</outfile>
+                            <rfc>true</rfc>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keystore>src/main/resources/ssl/cert.jks</keystore>
+                    <storepass>storepass</storepass>
+                    <keypass>storepass</keypass>
+                    <alias>localhost</alias>
+                    <validity>100</validity>
+                    <sigalg>SHA256withRSA</sigalg>
+                    <keyalg>RSA</keyalg>
+                    <!--dname>cn=com.example</dname-->
+                    <dname>cn=localhost.localdomain</dname>
+                </configuration>
             </plugin>
 
         </plugins>

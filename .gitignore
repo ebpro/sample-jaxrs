@@ -34,3 +34,5 @@ proguard/
 *.jar
 *.war
 *.ear
+
+src/main/resources/ssl/*

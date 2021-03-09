@@ -37,11 +37,11 @@ public class BiblioClient {
 
         //Log in to get the token with basci authentication
         String email = "john.doe@nowhere.com";
-        String password = "admin";
+        String passwd = "admin";
         String token = webResource.path("biblio/login")
                 .request()
                 .accept(MediaType.TEXT_PLAIN)
-                .header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString((email + ":" + password).getBytes()))
+                .header("Authorization", "Basic " + java.util.Base64.getEncoder().encodeToString((email + ":" + passwd).getBytes()))
                 .get(String.class);
         if (!token.isBlank()) {
             log.info("token received.");
