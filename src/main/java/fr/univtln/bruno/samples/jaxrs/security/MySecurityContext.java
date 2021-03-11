@@ -1,5 +1,7 @@
 package fr.univtln.bruno.samples.jaxrs.security;
 
+import fr.univtln.bruno.samples.jaxrs.security.filter.request.BasicAuthenticationFilter;
+import fr.univtln.bruno.samples.jaxrs.security.filter.request.JsonWebTokenFilter;
 import jakarta.ws.rs.core.SecurityContext;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,8 +12,8 @@ import java.security.Principal;
 /**
  * This class define a specific security context after an authentication with either the basic or the JWT filters.
  *
- * @see fr.univtln.bruno.samples.jaxrs.security.filter.BasicAuthenticationFilter
- * @see fr.univtln.bruno.samples.jaxrs.security.filter.JsonWebTokenFilter
+ * @see BasicAuthenticationFilter
+ * @see JsonWebTokenFilter
  */
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @AllArgsConstructor(staticName = "newInstance")

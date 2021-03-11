@@ -1,5 +1,6 @@
 package fr.univtln.bruno.samples.jaxrs.security.annotations;
 
+import fr.univtln.bruno.samples.jaxrs.security.filter.request.JsonWebTokenFilter;
 import jakarta.ws.rs.NameBinding;
 
 import java.lang.annotation.Retention;
@@ -11,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * A annotation for method to be secured with Java Web Token (JWT)
- * @see fr.univtln.bruno.samples.jaxrs.security.filter.JsonWebTokenFilter
+ * @see JsonWebTokenFilter
  */
 @NameBinding
 @Retention(RUNTIME)

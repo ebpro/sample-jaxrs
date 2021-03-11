@@ -42,9 +42,11 @@ public class Library {
 
     @JsonIgnore
     final MutableLongObjectMap<Author> authors = LongObjectMaps.mutable.empty();
+    final MutableLongObjectMap<Book> books = LongObjectMaps.mutable.empty();
 
     /**
      * used mainly to provide easy XML Serialization
+     *
      * @return the list of authors
      */
     @XmlElementWrapper(name = "authors")
@@ -53,8 +55,10 @@ public class Library {
     public List<Author> getAuthorsAsList() {
         return authors.toList();
     }
+
     /**
      * used mainly to provide easy XML Serialization
+     *
      * @return the list of books
      */
     @XmlElementWrapper(name = "books")
@@ -63,8 +67,6 @@ public class Library {
     public List<Book> getBooksAsList() {
         return books.toList();
     }
-
-    final MutableLongObjectMap<Book> books = LongObjectMaps.mutable.empty();
 
     /**
      * Adds an author to the model.
@@ -151,13 +153,7 @@ public class Library {
         return authors.size();
     }
 
-    /**
-     * Returns a sorted, filtered and paginated list of authors.
-     *
-     * @param paginationInfo the pagination info
-     * @return the sorted, filtered page.
-     */
-    public List<Author> getAuthorsWithFilter(PaginationInfo paginationInfo) {
+    private Stream<Author> buildSortedFilteredStream(PaginationInfo paginationInfo) {
         //We build a author stream, first we add sorting
         Stream<Author> authorStream = authors.stream()
                 .sorted(Comparator.comparing(auteur -> switch (valueOf(paginationInfo.getSortKey().toUpperCase())) {
@@ -174,6 +170,22 @@ public class Library {
         if (paginationInfo.getBiography() != null)
             authorStream = authorStream.filter(author -> author.getBiography().contains(paginationInfo.getBiography()));
 
+        return authorStream;
+    }
+
+    /**
+     * Returns a sorted, filtered and paginated list of authors.
+     *
+     * @param paginationInfo the pagination info
+     * @return the sorted, filtered page.
+     */
+    public Page<Author> getAuthorsWithFilter(PaginationInfo paginationInfo) {
+
+
+        //We count the total number of results before limit and offset
+        long elementTotal = buildSortedFilteredStream(paginationInfo).count();
+
+        Stream<Author> authorStream = buildSortedFilteredStream(paginationInfo);
         //Finally add pagination instructions.
         if ((paginationInfo.getPage() > 0) && (paginationInfo.getPageSize() > 0)) {
             authorStream = authorStream
@@ -181,7 +193,11 @@ public class Library {
                     .limit(paginationInfo.getPageSize());
         }
 
-        return authorStream.collect(Collectors.toList());
+        return Page.newInstance(paginationInfo.getPageSize(),
+                paginationInfo.getPage(),
+                elementTotal,
+                authorStream.collect(Collectors.toList())
+        );
     }
 
     /**
