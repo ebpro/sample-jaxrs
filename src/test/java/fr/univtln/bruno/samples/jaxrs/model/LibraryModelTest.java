@@ -38,7 +38,7 @@ public class LibraryModelTest {
         assertThat(author, samePropertyValuesAs(modeleBibliotheque.getAuthor(3), "id"));
     }
 
-    @Test(expected = NotFoundException.class)
+    @Test(expected = BusinessException.class)
     public void addAuteurException() throws BusinessException {
         Library.Author author = Library.Author.builder().firstname("John").name("Doe").build();
         modeleBibliotheque.addAuthor(SerializationUtils.clone(author));

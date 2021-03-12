@@ -62,7 +62,7 @@ public class ServerIT {
      */
     @Before
     public void beforeEach() {
-        webTarget.path("biblio/init").request().put(Entity.entity("", MediaType.TEXT_PLAIN));
+        webTarget.path("library/init").request().put(Entity.entity("", MediaType.TEXT_PLAIN));
     }
 
     /**
@@ -70,12 +70,12 @@ public class ServerIT {
      */
     @After
     public void afterEach() {
-        webTarget.path("biblio/auteurs").request().delete();
+        webTarget.path("authors").request().delete();
     }
 
     @Test
     public void testHello() {
-        String hello = webTarget.path("biblio").request(MediaType.TEXT_PLAIN).get(String.class);
+        String hello = webTarget.path("library").request(MediaType.TEXT_PLAIN).get(String.class);
         assertEquals("hello", hello);
     }
 
@@ -84,7 +84,7 @@ public class ServerIT {
      */
     @Test
     public void testGetAuteurJSON() {
-        Library.Author responseAuthor = webTarget.path("biblio/auteurs/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
+        Library.Author responseAuthor = webTarget.path("authors/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("Alfred", responseAuthor.getFirstname());
         assertEquals("Martin", responseAuthor.getName());
@@ -95,7 +95,7 @@ public class ServerIT {
      */
     @Test
     public void testGetAuteurXML() {
-        Library.Author responseAuthor = webTarget.path("biblio/auteurs/1").request(MediaType.TEXT_XML).get(Library.Author.class);
+        Library.Author responseAuthor = webTarget.path("authors/1").request(MediaType.TEXT_XML).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("Alfred", responseAuthor.getFirstname());
         assertEquals("Martin", responseAuthor.getName());
@@ -106,7 +106,7 @@ public class ServerIT {
      */
     @Test
     public void testGetAuteurJSONNotFoundException() {
-        Response response = webTarget.path("biblio/auteurs/10").request(MediaType.APPLICATION_JSON).get();
+        Response response = webTarget.path("authors/10").request(MediaType.APPLICATION_JSON).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 
@@ -115,7 +115,7 @@ public class ServerIT {
      */
     @Test
     public void testGetAuteurs() {
-        Collection<Library.Author> responseAuthors = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
+        Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(2, responseAuthors.size());
     }
@@ -125,8 +125,8 @@ public class ServerIT {
      */
     @Test
     public void deleteAuteurs() {
-        webTarget.path("biblio/auteurs").request().delete();
-        Collection<Library.Author> responseAuthors = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
+        webTarget.path("authors").request().delete();
+        Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(0, responseAuthors.size());
     }
@@ -136,8 +136,8 @@ public class ServerIT {
      */
     @Test
     public void deleteAuteur() {
-        webTarget.path("biblio/auteurs/1").request().delete();
-        Collection<Library.Author> responseAuthors = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
+        webTarget.path("authors/1").request().delete();
+        Collection<Library.Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(1, responseAuthors.size());
         assertEquals(2, responseAuthors.iterator().next().getId());
@@ -149,14 +149,14 @@ public class ServerIT {
      */
     @Test
     public void addAuteur() {
-        webTarget.path("biblio/auteurs")
+        webTarget.path("authors")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .post(Entity.entity("{\"nom\":\"Smith\",\"prenom\":\"John\",\"biographie\":\"My life\"}", MediaType.APPLICATION_JSON));
-        Collection<Author> responseAuthors = webTarget.path("biblio/auteurs").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
+                .post(Entity.entity("{\"name\":\"Smith\",\"firstname\":\"John\",\"biography\":\"My life\"}", MediaType.APPLICATION_JSON));
+        Collection<Author> responseAuthors = webTarget.path("authors").request(MediaType.APPLICATION_JSON).get(new GenericType<>() {
         });
         assertEquals(3, responseAuthors.size());
-        Library.Author responseAuthor = webTarget.path("biblio/auteurs/3").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
+        Library.Author responseAuthor = webTarget.path("authors/3").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("John", responseAuthor.getFirstname());
         assertEquals("Smith", responseAuthor.getName());
@@ -168,11 +168,11 @@ public class ServerIT {
      */
     @Test
     public void updateAuteur() {
-        webTarget.path("biblio/auteurs/1")
+        webTarget.path("authors/1")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.entity("{\"nom\":\"Doe\",\"prenom\":\"Jim\",\"biographie\":\"My weird life\"}", MediaType.APPLICATION_JSON));
-        Author responseAuthor = webTarget.path("biblio/auteurs/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
+                .put(Entity.entity("{\"name\":\"Doe\",\"firstname\":\"Jim\",\"biography\":\"My weird life\"}", MediaType.APPLICATION_JSON));
+        Author responseAuthor = webTarget.path("authors/1").request(MediaType.APPLICATION_JSON).get(Library.Author.class);
         assertNotNull(responseAuthor);
         assertEquals("Jim", responseAuthor.getFirstname());
         assertEquals("Doe", responseAuthor.getName());
@@ -184,10 +184,11 @@ public class ServerIT {
      */
     @Test
     public void updateAuteurIllegalArgument() {
-        Response response = webTarget.path("biblio/auteurs/1")
+        Response response = webTarget.path("authors/1")
                 .request(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .put(Entity.entity("{\"id\":\"1\",\"nom\":\"Doe\",\"prenom\":\"Jim\",\"biographie\":\"My weird life\"}", MediaType.APPLICATION_JSON));
+                .put(Entity.entity("""
+                        {"id":"1","name":"Doe","firstname":"Jim","biography":"My weird life"}""", MediaType.APPLICATION_JSON));
         assertEquals(Response.Status.NOT_ACCEPTABLE.getStatusCode(), response.getStatus());
     }
 
@@ -208,8 +209,8 @@ public class ServerIT {
      */
     @Test
     public void filter() {
-        List<Library.Author> authors = webTarget.path("biblio/auteurs/filter")
-                .queryParam("prenom","Marie")
+        List<Library.Author> authors = webTarget.path("authors/filter")
+                .queryParam("firstname","Marie")
                 .request(MediaType.APPLICATION_JSON)
                 .get(new GenericType<>() {});
 
@@ -219,7 +220,7 @@ public class ServerIT {
 
     @Test
     public void refusedLogin() {
-        Response result = webTarget.path("biblio/login")
+        Response result = webTarget.path("setup/login")
                 .request()
                 .get();
         assertEquals(Response.Status.UNAUTHORIZED.getStatusCode(), result.getStatus());
@@ -229,7 +230,7 @@ public class ServerIT {
     public void acceptedLogin() {
         String email="john.doe@nowhere.com";
         String password="admin";
-        Response result = webTarget.path("biblio/login")
+        Response result = webTarget.path("setup/login")
                 .request()
                 .accept(MediaType.TEXT_PLAIN)
                 .header("Authorization",  "Basic "+java.util.Base64.getEncoder().encodeToString((email+":"+password).getBytes()))
@@ -249,14 +250,14 @@ public class ServerIT {
         //Log in to get the token
         String email="john.doe@nowhere.com";
         String password="admin";
-        String token = webTarget.path("biblio/login")
+        String token = webTarget.path("setup/login")
                 .request()
                 .accept(MediaType.TEXT_PLAIN)
                 .header("Authorization",  "Basic "+java.util.Base64.getEncoder().encodeToString((email+":"+password).getBytes()))
                 .get(String.class);
 
         //We access a JWT protected URL with the token
-        Response result = webTarget.path("biblio/secured")
+        Response result = webTarget.path("setup/secured")
                 .request()
                 .header( "Authorization",  "Bearer "+token)
                 .get();
@@ -277,7 +278,7 @@ public class ServerIT {
                 .signWith( Keys.secretKeyFor(SignatureAlgorithm.HS256)).compact();
 
         //We access a JWT protected URL with the token
-        Response result = webTarget.path("biblio/secured")
+        Response result = webTarget.path("setup/secured")
                 .request()
                 .header( "Authorization",  "Bearer "+forgedToken)
                 .get();

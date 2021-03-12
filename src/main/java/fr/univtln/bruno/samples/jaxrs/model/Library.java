@@ -77,7 +77,7 @@ public class Library {
      * @throws BusinessException if the format is incorrect.
      */
     public Author addAuthor(Author author) throws BusinessException {
-        if (author.id != 0) throw new BusinessException(Response.Status.INTERNAL_SERVER_ERROR, "Id shouldn't be given");
+        if (author.id != 0) throw new BusinessException(Response.Status.NOT_ACCEPTABLE, "Id shouldn't be given");
 
         author.id = lastAuthorId.incrementAndGet();
         authors.put(author.id, author);
@@ -95,7 +95,7 @@ public class Library {
         if (book.id != 0) throw new BusinessException(Response.Status.INTERNAL_SERVER_ERROR, "Id shouldn't be given");
         if (book.authors == null || book.authors.isEmpty())
             throw new BusinessException(Response.Status.INTERNAL_SERVER_ERROR, "Author set is mandatory");
-        book.id = lastAuthorId.incrementAndGet();
+        book.id = lastBookId.incrementAndGet();
         book.authors.stream().forEach(auteur -> {
             if (auteur.books == null) auteur.books = new HashSet<>();
             auteur.books.add(book);
@@ -114,7 +114,7 @@ public class Library {
      */
     public Author updateAuteur(long id, Author author) throws BusinessException {
         if (author.id != 0)
-            throw new BusinessException(Response.Status.INTERNAL_SERVER_ERROR, "Id shouldn't be given in data");
+            throw new BusinessException(Response.Status.NOT_ACCEPTABLE, "Id shouldn't be given in data");
         author.id = id;
         if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         authors.put(id, author);
@@ -206,7 +206,9 @@ public class Library {
      */
     public void removesAuthors() {
         authors.clear();
+        books.clear();
         lastAuthorId.set(0);
+        lastBookId.set(0);
     }
 
     /**

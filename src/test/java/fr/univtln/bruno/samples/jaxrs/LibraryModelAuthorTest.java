@@ -18,9 +18,9 @@ public class LibraryModelAuthorTest {
                 .firstname(prenom)
                 .biography(bio)
                 .build();
-        assertThat(author, allOf(hasProperty("nom", is(nom)),
-                hasProperty("prenom", is(prenom)),
-                hasProperty("biographie", is(bio))));
+        assertThat(author, allOf(hasProperty("name", is(nom)),
+                hasProperty("firstname", is(prenom)),
+                hasProperty("biography", is(bio))));
     }
 
 }
