@@ -42,9 +42,12 @@ public class Library {
 
     @JsonIgnore
     final MutableLongObjectMap<Author> authors = LongObjectMaps.mutable.empty();
+    final MutableLongObjectMap<Book> books = LongObjectMaps.mutable.empty();
 
+    private static final String AUTHOR_NOT_FOUND = "Author not found";
     /**
      * used mainly to provide easy XML Serialization
+     *
      * @return the list of authors
      */
     @XmlElementWrapper(name = "authors")
@@ -53,8 +56,10 @@ public class Library {
     public List<Author> getAuthorsAsList() {
         return authors.toList();
     }
+
     /**
      * used mainly to provide easy XML Serialization
+     *
      * @return the list of books
      */
     @XmlElementWrapper(name = "books")
@@ -63,8 +68,6 @@ public class Library {
     public List<Book> getBooksAsList() {
         return books.toList();
     }
-
-    final MutableLongObjectMap<Book> books = LongObjectMaps.mutable.empty();
 
     /**
      * Adds an author to the model.
@@ -113,7 +116,7 @@ public class Library {
         if (author.id != 0)
             throw new BusinessException(Response.Status.INTERNAL_SERVER_ERROR, "Id shouldn't be given in data");
         author.id = id;
-        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, "Author not found");
+        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         authors.put(id, author);
         return author;
     }
@@ -125,7 +128,7 @@ public class Library {
      * @throws BusinessException if not found
      */
     public void removeAuthor(long id) throws BusinessException {
-        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, "Author not found");
+        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         authors.remove(id);
     }
 
@@ -137,7 +140,7 @@ public class Library {
      * @throws NotFoundException if not found exception
      */
     public Author getAuthor(long id) throws BusinessException {
-        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, "Author not found");
+        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         return authors.get(id);
     }
 
@@ -151,13 +154,7 @@ public class Library {
         return authors.size();
     }
 
-    /**
-     * Returns a sorted, filtered and paginated list of authors.
-     *
-     * @param paginationInfo the pagination info
-     * @return the sorted, filtered page.
-     */
-    public List<Author> getAuthorsWithFilter(PaginationInfo paginationInfo) {
+    private Stream<Author> buildSortedFilteredStream(PaginationInfo paginationInfo) {
         //We build a author stream, first we add sorting
         Stream<Author> authorStream = authors.stream()
                 .sorted(Comparator.comparing(auteur -> switch (valueOf(paginationInfo.getSortKey().toUpperCase())) {
@@ -174,6 +171,22 @@ public class Library {
         if (paginationInfo.getBiography() != null)
             authorStream = authorStream.filter(author -> author.getBiography().contains(paginationInfo.getBiography()));
 
+        return authorStream;
+    }
+
+    /**
+     * Returns a sorted, filtered and paginated list of authors.
+     *
+     * @param paginationInfo the pagination info
+     * @return the sorted, filtered page.
+     */
+    public Page<Author> getAuthorsWithFilter(PaginationInfo paginationInfo) {
+
+
+        //We count the total number of results before limit and offset
+        long elementTotal = buildSortedFilteredStream(paginationInfo).count();
+
+        Stream<Author> authorStream = buildSortedFilteredStream(paginationInfo);
         //Finally add pagination instructions.
         if ((paginationInfo.getPage() > 0) && (paginationInfo.getPageSize() > 0)) {
             authorStream = authorStream
@@ -181,7 +194,11 @@ public class Library {
                     .limit(paginationInfo.getPageSize());
         }
 
-        return authorStream.collect(Collectors.toList());
+        return Page.newInstance(paginationInfo.getPageSize(),
+                paginationInfo.getPage(),
+                elementTotal,
+                authorStream.collect(Collectors.toList())
+        );
     }
 
     /**
@@ -233,7 +250,7 @@ public class Library {
         @XmlElementWrapper(name = "books")
         @XmlElements({@XmlElement(name = "book")})
         @JsonIdentityReference(alwaysAsId = true)
-        Set<Book> books;
+        private Set<Book> books;
 
         @XmlID
         @XmlAttribute(name = "id")
@@ -270,7 +287,7 @@ public class Library {
         @XmlElementWrapper(name = "authors")
         @XmlElements({@XmlElement(name = "author")})
         @JsonIdentityReference(alwaysAsId = true)
-        Set<Author> authors;
+        private Set<Author> authors;
 
         @XmlID
         @XmlAttribute(name = "id")

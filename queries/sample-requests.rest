@@ -1,8 +1,8 @@
 ### Get a Hello message
-GET http://localhost:9998/mylibrary/setup
+GET http://localhost:9998/mylibrary/library
 
 ### Init the database with two authors
-PUT http://localhost:9998/mylibrary/setup/init
+PUT http://localhost:9998/mylibrary/library/init
 
 ### Get author 1 in JSON
 GET http://localhost:9998/mylibrary/authors/1
@@ -38,7 +38,7 @@ Content-type: application/json
 {"name":"John","firstname":"Smith","biography":"My life"}
 
 ### ReInit the database with two authors
-PUT http://localhost:9998/mylibrary/setup/init
+PUT http://localhost:9998/mylibrary/library/init
 
 ### Fully update an author
 PUT http://localhost:9998/mylibrary/authors/1
@@ -51,7 +51,7 @@ Content-type: application/json
 GET http://localhost:9998/mylibrary/authors/1000
 Accept: application/json
 
-### If a resource doesn't exist an exception is raised, and the 404 http status code is returned
+### TODO : (FIX IT) If a resource doesn't exist an exception is raised, and the 404 http status code is returned
 GET http://localhost:9998/mylibrary/authors/1000
 Accept: text/xml
 
@@ -65,7 +65,7 @@ Accept: application/json
 sortKey: firstname
 
 ### Init the database with 10k random authors
-PUT http://localhost:9998/mylibrary/setup/init/10000
+PUT http://localhost:9998/mylibrary/library/init/10000
 
 ### Get page 3 with page size of 10 authors sorted by lastname
 GET http://localhost:9998/mylibrary/authors/page?pageSize=10&page=3

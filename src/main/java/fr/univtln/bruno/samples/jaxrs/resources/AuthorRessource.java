@@ -4,13 +4,13 @@ import fr.univtln.bruno.samples.jaxrs.exceptions.BusinessException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.IllegalArgumentException;
 import fr.univtln.bruno.samples.jaxrs.exceptions.NotFoundException;
 import fr.univtln.bruno.samples.jaxrs.model.Library;
+import fr.univtln.bruno.samples.jaxrs.model.Page;
 import fr.univtln.bruno.samples.jaxrs.status.Status;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import lombok.extern.java.Log;
 
 import java.util.Collection;
-import java.util.List;
 
 @Log
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
@@ -102,7 +102,7 @@ public class AuthorRessource {
      */
     @GET
     @Path("filter")
-    public List<Library.Author> getFilteredAuteurs(@QueryParam("name") String name,
+    public Page<Library.Author> getFilteredAuteurs(@QueryParam("name") String name,
                                                    @QueryParam("firstname") String firstname,
                                                    @QueryParam("biography") String biography,
                                                    @HeaderParam("sortKey") @DefaultValue("name") String sortKey) {
@@ -112,7 +112,7 @@ public class AuthorRessource {
                 .biography(biography)
                 .sortKey(sortKey)
                 .build();
-        log.info(paginationInfo.toString());
+
         return Library.demoLibrary.getAuthorsWithFilter(paginationInfo);
     }
 
@@ -124,7 +124,7 @@ public class AuthorRessource {
      */
     @GET
     @Path("page")
-    public List<Library.Author> getAuteursPage(@BeanParam PaginationInfo paginationInfo) {
+    public Page<Library.Author> getAuteursPage(@BeanParam PaginationInfo paginationInfo) {
         return Library.demoLibrary.getAuthorsWithFilter(paginationInfo);
     }
 

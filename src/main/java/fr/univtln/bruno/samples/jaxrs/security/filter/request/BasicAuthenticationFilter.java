@@ -1,4 +1,4 @@
-package fr.univtln.bruno.samples.jaxrs.security.filter;
+package fr.univtln.bruno.samples.jaxrs.security.filter.request;
 
 import fr.univtln.bruno.samples.jaxrs.security.MySecurityContext;
 import fr.univtln.bruno.samples.jaxrs.security.annotations.BasicAuth;

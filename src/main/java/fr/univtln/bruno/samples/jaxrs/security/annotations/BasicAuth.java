@@ -1,5 +1,6 @@
 package fr.univtln.bruno.samples.jaxrs.security.annotations;
 
+import fr.univtln.bruno.samples.jaxrs.security.filter.request.BasicAuthenticationFilter;
 import jakarta.ws.rs.NameBinding;
 
 import java.lang.annotation.Retention;
@@ -11,7 +12,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
  * A annotation for method to be secured with Basic Auth
- * @see fr.univtln.bruno.samples.jaxrs.security.filter.BasicAuthenticationFilter
+ * @see BasicAuthenticationFilter
  */
 @NameBinding
 @Retention(RUNTIME)
