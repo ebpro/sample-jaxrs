@@ -24,6 +24,6 @@ public class Page<T> {
     }
 
     public static <V> Page<V> newInstance(long pageSize, long pageNumber, long elementTotal, List<V> content) {
-        return new Page(pageSize, pageNumber, elementTotal, content);
+        return new Page<>(pageSize, pageNumber, elementTotal, content);
     }
 }

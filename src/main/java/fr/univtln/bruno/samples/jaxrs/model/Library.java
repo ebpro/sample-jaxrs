@@ -44,6 +44,7 @@ public class Library {
     final MutableLongObjectMap<Author> authors = LongObjectMaps.mutable.empty();
     final MutableLongObjectMap<Book> books = LongObjectMaps.mutable.empty();
 
+    private static final String AUTHOR_NOT_FOUND = "Author not found";
     /**
      * used mainly to provide easy XML Serialization
      *
@@ -115,7 +116,7 @@ public class Library {
         if (author.id != 0)
             throw new BusinessException(Response.Status.INTERNAL_SERVER_ERROR, "Id shouldn't be given in data");
         author.id = id;
-        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, "Author not found");
+        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         authors.put(id, author);
         return author;
     }
@@ -127,7 +128,7 @@ public class Library {
      * @throws BusinessException if not found
      */
     public void removeAuthor(long id) throws BusinessException {
-        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, "Author not found");
+        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         authors.remove(id);
     }
 
@@ -139,7 +140,7 @@ public class Library {
      * @throws NotFoundException if not found exception
      */
     public Author getAuthor(long id) throws BusinessException {
-        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, "Author not found");
+        if (!authors.containsKey(id)) throw new BusinessException(Response.Status.NOT_FOUND, AUTHOR_NOT_FOUND);
         return authors.get(id);
     }
 
@@ -249,7 +250,7 @@ public class Library {
         @XmlElementWrapper(name = "books")
         @XmlElements({@XmlElement(name = "book")})
         @JsonIdentityReference(alwaysAsId = true)
-        Set<Book> books;
+        private Set<Book> books;
 
         @XmlID
         @XmlAttribute(name = "id")
@@ -286,7 +287,7 @@ public class Library {
         @XmlElementWrapper(name = "authors")
         @XmlElements({@XmlElement(name = "author")})
         @JsonIdentityReference(alwaysAsId = true)
-        Set<Author> authors;
+        private Set<Author> authors;
 
         @XmlID
         @XmlAttribute(name = "id")

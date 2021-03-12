@@ -16,7 +16,6 @@ import jakarta.ws.rs.core.*;
 import lombok.extern.java.Log;
 
 import javax.naming.AuthenticationException;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -31,9 +30,6 @@ import java.util.Date;
 @Path("setup")
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 public class AdminResource {
-
-    //A random number generator
-    private static final SecureRandom random = new SecureRandom();
 
     /**
      * A GET method to access the context of the request : The URI, the HTTP headers, the request and the security context (needs authentication see below).
