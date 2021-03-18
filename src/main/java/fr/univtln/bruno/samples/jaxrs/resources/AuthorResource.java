@@ -28,7 +28,7 @@ public class AuthorResource {
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Library.Author updateAuteur(@PathParam("id") long id, Library.Author author) throws BusinessException {
+    public Library.Author updateAuthor(@PathParam("id") long id, Library.Author author) throws BusinessException {
         return Library.demoLibrary.updateAuteur(id, author);
     }
 
@@ -43,7 +43,7 @@ public class AuthorResource {
     @POST
     @Status(Status.CREATED)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Library.Author ajouterAuteur(Library.Author author) throws BusinessException {
+    public Library.Author addAuthor(Library.Author author) throws BusinessException {
         return Library.demoLibrary.addAuthor(author);
     }
 
@@ -55,7 +55,7 @@ public class AuthorResource {
      */
     @DELETE
     @Path("{id}")
-    public void supprimerAuteur(@PathParam("id") final long id) throws BusinessException {
+    public void removeAuthor(@PathParam("id") final long id) throws BusinessException {
         Library.demoLibrary.removeAuthor(id);
     }
 
@@ -63,7 +63,7 @@ public class AuthorResource {
      * Removes every authors
      */
     @DELETE
-    public void supprimerAuteurs() {
+    public void removeAuthors() {
         Library.demoLibrary.removesAuthors();
     }
 
@@ -77,7 +77,7 @@ public class AuthorResource {
      */
     @GET
     @Path("{id}")
-    public Library.Author getAuteur(@PathParam("id") final long id) throws BusinessException {
+    public Library.Author getAuthor(@PathParam("id") final long id) throws BusinessException {
         return Library.demoLibrary.getAuthor(id);
     }
 
@@ -87,7 +87,7 @@ public class AuthorResource {
      * @return the auteurs
      */
     @GET
-    public Collection<Library.Author> getAuteurs() {
+    public Collection<Library.Author> getAuthors() {
         return Library.demoLibrary.getAuthors().values();
     }
 
@@ -102,7 +102,7 @@ public class AuthorResource {
      */
     @GET
     @Path("filter")
-    public Page<Library.Author> getFilteredAuteurs(@QueryParam("name") String name,
+    public Page<Library.Author> getFilteredAuthors(@QueryParam("name") String name,
                                                    @QueryParam("firstname") String firstname,
                                                    @QueryParam("biography") String biography,
                                                    @HeaderParam("sortKey") @DefaultValue("name") String sortKey) {
@@ -124,7 +124,7 @@ public class AuthorResource {
      */
     @GET
     @Path("page")
-    public Page<Library.Author> getAuteursPage(@BeanParam PaginationInfo paginationInfo) {
+    public Page<Library.Author> getAuthorsPage(@BeanParam PaginationInfo paginationInfo) {
         return Library.demoLibrary.getAuthorsWithFilter(paginationInfo);
     }
 
