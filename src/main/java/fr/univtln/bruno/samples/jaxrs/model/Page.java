@@ -20,7 +20,7 @@ public class Page<T> {
         this.pageNumber = pageNumber;
         this.elementTotal = elementTotal;
         this.content = content;
-        this.pageTotal = elementTotal / pageSize;
+        this.pageTotal = (elementTotal+pageSize-1) / pageSize;
     }
 
     public static <V> Page<V> newInstance(long pageSize, long pageNumber, long elementTotal, List<V> content) {
