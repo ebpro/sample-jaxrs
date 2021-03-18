@@ -13,6 +13,8 @@ import lombok.extern.java.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Provider
 @Log
@@ -38,7 +40,6 @@ public class PaginationLinkFilter implements ContainerResponseFilter {
         UriInfo uriInfo = requestContext.getUriInfo();
         Page entity = (Page) responseContext.getEntity();
 
-        log.info("-->"+entity.getPageNumber()+"/"+entity.getPageTotal());
        if (entity.getPageNumber()>entity.getPageTotal())
             throw new WebApplicationException(Response.Status.NOT_FOUND);
 
@@ -75,8 +76,7 @@ public class PaginationLinkFilter implements ContainerResponseFilter {
                     .build());
         }
 
-        responseContext.getHeaders()
-                .addAll("Link", linksList.toArray(Link[]::new));
+        responseContext.getHeaders().add("Link", linksList.stream().map(l->l.toString()).collect(Collectors.joining(",")));
         //We add pagination metadata in the header
         responseContext.getHeaders().add(JAXRS_SAMPLE_TOTAL_COUNT, entity.getElementTotal());
         responseContext.getHeaders().add(JAXRS_SAMPLE_PAGE_COUNT, entity.getPageTotal());
