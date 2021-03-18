@@ -13,7 +13,7 @@ import java.util.Set;
 @Log
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Path("library")
-public class LibraryRessource {
+public class LibraryResource {
 
     //A random number generator
     private static final SecureRandom random = new SecureRandom();

@@ -15,7 +15,7 @@ import java.util.Collection;
 @Log
 @Produces({MediaType.APPLICATION_JSON, MediaType.TEXT_XML})
 @Path("authors")
-public class AuthorRessource {
+public class AuthorResource {
     /**
      * Update an author with an given id.
      *
