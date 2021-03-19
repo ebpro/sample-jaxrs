@@ -1,4 +1,4 @@
-package fr.univtln.bruno.samples.jaxrs.security.filter.response;
+package fr.univtln.bruno.samples.jaxrs.pagination;
 
 import fr.univtln.bruno.samples.jaxrs.model.Page;
 import jakarta.ws.rs.WebApplicationException;
