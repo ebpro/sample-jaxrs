@@ -68,10 +68,10 @@
             <scope>runtime</scope>
         </dependency-->
 
-        <dependency>
+        <!--dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-jackson</artifactId>
