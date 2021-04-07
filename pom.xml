@@ -439,6 +439,7 @@
                                 <Main-Class>${main.class}</Main-Class>
                                 <X-Compile-Source-JDK>${java.version}</X-Compile-Source-JDK>
                                 <X-Compile-Target-JDK>${java.version}</X-Compile-Target-JDK>
+                                <Multi-Release>true</Multi-Release>
                             </manifestEntries>
                         </transformer>
 
