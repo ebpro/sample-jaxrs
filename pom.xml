@@ -521,7 +521,7 @@
                     <sigalg>SHA256withRSA</sigalg>
                     <keyalg>RSA</keyalg>
                     <!--dname>cn=com.example</dname-->
-                    <dname>cn=localhost.localdomain</dname>
+                    <dname>cn=localhost</dname>
                 </configuration>
             </plugin>
 
