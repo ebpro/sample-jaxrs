@@ -30,6 +30,7 @@ public class LibraryResource {
      */
     @SuppressWarnings("SameReturnValue")
     @GET
+    @Path("hello")
     @Produces(MediaType.TEXT_PLAIN)
     public String sayHello() {
         return "hello";

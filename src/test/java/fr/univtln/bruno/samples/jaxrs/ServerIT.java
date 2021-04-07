@@ -75,7 +75,7 @@ public class ServerIT {
 
     @Test
     public void testHello() {
-        String hello = webTarget.path("library").request(MediaType.TEXT_PLAIN).get(String.class);
+        String hello = webTarget.path("library/hello").request(MediaType.TEXT_PLAIN).get(String.class);
         assertEquals("hello", hello);
     }
 

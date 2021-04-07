@@ -1,4 +1,8 @@
 ### Get a Hello message
+GET http://localhost:9998/mylibrary/library/hello
+Accept: text/plain
+
+### Get the whole library
 GET http://localhost:9998/mylibrary/library
 
 ### Init the database with two authors
