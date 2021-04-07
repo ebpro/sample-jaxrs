@@ -87,7 +87,7 @@ biblio-demo-header-1: myvalue
 biblio-demo-header-2: anothervalue
 
 ### Authorization by token, part 1. Retrieve and save token with Basic Authentication
-#  TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/myapp/biblio/login")
+#  TOKEN=$(curl -v --user "john.doe@nowhere.com:admin" "http://localhost:9998/mylibrary/setup/login")
 GET http://localhost:9998/mylibrary/setup/login
 Authorization: Basic john.doe@nowhere.com admin
 
